@@ -23,7 +23,7 @@ sub diff {
 {
     my $gd = Geo::Raster->new('real',5,10);
     ok(defined($gd), "simple new");
-    for ('data/dem.bil') {
+    for ('t/data/dem.bil') {
 	$gd = Geo::Raster->new($_);
 	ok(defined($gd),"open");
     }

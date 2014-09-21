@@ -16,7 +16,7 @@ sub diff {
 # not tested: route, killoutlets, prune, number_streams, subcatchments
 
 {
-    $dem = Geo::Raster->new(filename=>'data/dem.bil', load=>1);
+    $dem = Geo::Raster->new(filename=>'t/data/dem.bil', load=>1);
     @fit = $dem->fit_surface;
     ok(@fit == 9, "fit_surface");
     $aspect = $dem->aspect;
