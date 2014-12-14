@@ -925,21 +925,29 @@ sub cell_size {
 ## @method $nodata_value($value)
 #
 # @brief Get or set the value used to denote nodata values. 
-# @param[in] value (optional) Value that represents \a nodata in the raster.
+# @param[in] value (optional) Value that represents \a nodata in the
+# raster. Use undef for unsetting the nodata value.
 # @return the value for nodata if called without parameter.
 sub nodata_value {
     my $self = shift;
-    my $nodata_value = shift;
-    if (defined $nodata_value) {
-	if ($nodata_value eq '') {
-	    ral_grid_remove_nodata_value($self->{GRID});
+    my $nodata_value;
+    if (@_ > 0) {
+        $nodata_value = shift;
+        $nodata_value = undef if $nodata_value eq ''; # support old, now deprecated style
+        if ($self->{GDAL}) {
+	    my $band = $self->band();
+	    $nodata_value = $band->NoDataValue($nodata_value) if $band;
 	} else {
-	    ral_grid_set_nodata_value($self->{GRID}, $nodata_value);
-	}
+            if (not defined($nodata_value)) {
+                ral_grid_remove_nodata_value($self->{GRID});
+            } else {
+                ral_grid_set_nodata_value($self->{GRID}, $nodata_value);
+            }
+        }
     } else {
 	if ($self->{GDAL}) {
 	    my $band = $self->band();
-	    $nodata_value = $band->GetNoDataValue() if $band;
+	    $nodata_value = $band->NoDataValue() if $band;
 	} else {
 	    $nodata_value = ral_grid_get_nodata_value($self->{GRID});
 	}
