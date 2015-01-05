@@ -18,12 +18,12 @@ sub frame {
     $self = Geo::Raster->new($self) if defined wantarray;
     my($i, $j);
     for $i (0..$M-1) {
-	$self->set($i, 0, $with);
-	$self->set($i, $N-1, $with);
+        $self->set($i, 0, $with);
+        $self->set($i, $N-1, $with);
     }
     for $j (1..$N-2) {
-	$self->set(0, $j, $with);
-	$self->set($M-1, $j, $with);
+        $self->set(0, $j, $with);
+        $self->set($M-1, $j, $with);
     }
     return $self if defined wantarray;
 }
@@ -40,18 +40,18 @@ sub convolve {
     my $self = shift;
     my $mask = shift;
     if (@_) {
-	my($i, $j) = @_;
-	my $x = ral_grid_convolve($self->{GRID}, $i, $j, $mask);
-	return $x;
+        my($i, $j) = @_;
+        my $x = ral_grid_convolve($self->{GRID}, $i, $j, $mask);
+        return $x;
     } else {
-	my $grid = ral_grid_convolve_grid($self->{GRID}, $mask);
-	if (defined wantarray) {
-	    $grid = new Geo::Raster($grid);
-	    return $grid;
-	} else {
-	    ral_grid_destroy($self->{GRID});
-	    $self->{GRID} = $grid;
-	}
+        my $grid = ral_grid_convolve_grid($self->{GRID}, $mask);
+        if (defined wantarray) {
+            $grid = new Geo::Raster($grid);
+            return $grid;
+        } else {
+            ral_grid_destroy($self->{GRID});
+            $self->{GRID} = $grid;
+        }
     }
 }
 
@@ -68,9 +68,9 @@ sub convolve {
 sub line {
     my($self, $i1, $j1, $i2, $j2, $pen) = @_;
     unless (defined $pen) {
-	return ral_grid_get_line($self->{GRID}, $i1, $j1, $i2, $j2);
+        return ral_grid_get_line($self->{GRID}, $i1, $j1, $i2, $j2);
     } else {
-	ral_grid_line($self->{GRID}, $i1, $j1, $i2, $j2, $pen);
+        ral_grid_line($self->{GRID}, $i1, $j1, $i2, $j2, $pen);
     }
 }
 
@@ -78,49 +78,49 @@ sub line {
 sub transect {
     my($self, $geom, $delta) = @_;
     croak "usage: \$raster->transect(\$geometry, \$delta)" 
-	unless blessed($geom) and $geom->isa('Geo::OGR::Geometry') and (defined $delta and $delta > 0);
+        unless blessed($geom) and $geom->isa('Geo::OGR::Geometry') and (defined $delta and $delta > 0);
     my @transect;
     if ($geom->GetGeometryCount) {
-	for (0..$geom->GetGeometryCount-1) {
-	    my $t = $self->transect($geom->GetGeometryRef($_), $delta);
-	    push @transect, $t;
-	}
+        for (0..$geom->GetGeometryCount-1) {
+            my $t = $self->transect($geom->GetGeometryRef($_), $delta);
+            push @transect, $t;
+        }
     } else {
-	my $i;
-	my $l = 0;
-	my $n = $geom->GetPointCount;
+        my $i;
+        my $l = 0;
+        my $n = $geom->GetPointCount;
 
-	my $x0 = $geom->GetX(0);
-	my $y0 = $geom->GetY(0);
+        my $x0 = $geom->GetX(0);
+        my $y0 = $geom->GetY(0);
 
-	for $i (0..$n-2) {
-	    push @transect, [$l, $self->get($self->w2g($x0, $y0))];
+        for $i (0..$n-2) {
+            push @transect, [$l, $self->get($self->w2g($x0, $y0))];
 
-	    my $x1 = $geom->GetX($i+1);
-	    my $y1 = $geom->GetY($i+1);	    
+            my $x1 = $geom->GetX($i+1);
+            my $y1 = $geom->GetY($i+1);            
 
-	    my $d = CORE::sqrt(($x1-$x0)**2+($y1-$y0)**2);
-	    my $l0 = $l;
-	    if ($d > $delta) {
-		my $dx = $delta * ($x1-$x0)/$d;
-		my $dy = $delta * ($y1-$y0)/$d;
-		
-		my $x = $x0;
-		my $y = $y0;
-		for (1..int($d/$delta)) {
-		    $x += $dx;
-		    $y += $dy;
-		    $l += $delta;
-		    push @transect, [$l, $self->get($self->w2g($x, $y))];
-		}
+            my $d = CORE::sqrt(($x1-$x0)**2+($y1-$y0)**2);
+            my $l0 = $l;
+            if ($d > $delta) {
+                my $dx = $delta * ($x1-$x0)/$d;
+                my $dy = $delta * ($y1-$y0)/$d;
+                
+                my $x = $x0;
+                my $y = $y0;
+                for (1..int($d/$delta)) {
+                    $x += $dx;
+                    $y += $dy;
+                    $l += $delta;
+                    push @transect, [$l, $self->get($self->w2g($x, $y))];
+                }
 
-	    }
+            }
 
-	    $x0 = $x1;
-	    $y0 = $y1;
-	    $l = $l0+$d;
-	}
-	push @transect, [$l, $self->get($self->w2g($x0, $y0))];
+            $x0 = $x1;
+            $y0 = $y1;
+            $l = $l0+$d;
+        }
+        push @transect, [$l, $self->get($self->w2g($x0, $y0))];
     }
     return \@transect;
 }
@@ -137,9 +137,9 @@ sub transect {
 sub rect {
     my($self, $i1, $j1, $i2, $j2, $pen) = @_;
     unless (defined $pen) {
-	return ral_grid_get_rect($self->{GRID}, $i1, $j1, $i2, $j2);
+        return ral_grid_get_rect($self->{GRID}, $i1, $j1, $i2, $j2);
     } else {
-	ral_grid_filled_rect($self->{GRID}, $i1, $j1, $i2, $j2, $pen);
+        ral_grid_filled_rect($self->{GRID}, $i1, $j1, $i2, $j2, $pen);
     }
 }
 
@@ -156,9 +156,9 @@ sub rect {
 sub circle {
     my($self, $i, $j, $r, $pen) = @_;
     unless (defined $pen) {
-	return ral_grid_get_circle($self->{GRID}, $i, $j, $r);
+        return ral_grid_get_circle($self->{GRID}, $i, $j, $r);
     } else {
-	ral_grid_filled_circle($self->{GRID}, $i, $j, $r, $pen);
+        ral_grid_filled_circle($self->{GRID}, $i, $j, $r, $pen);
     }
 }
 
@@ -218,54 +218,54 @@ sub thin {
     my($self, %opt) = @_;
     $self = Geo::Raster->new($self) if defined wantarray;
     my @D1 = (+0,+0,-1,
-	      +0,+1,+1,
-	      -1,+1,-1);
+              +0,+1,+1,
+              -1,+1,-1);
     my @D2 = (-1,+0,+0,
-	      +1,+1,+0,
-	      -1,+1,-1);
+              +1,+1,+0,
+              -1,+1,-1);
     my @D3 = (-1,+1,-1,
-	      +1,+1,+0,
-	      -1,+0,+0);
+              +1,+1,+0,
+              -1,+0,+0);
     my @D4 = (-1,+1,-1,
-	      +0,+1,+1,
-	      +0,+0,-1);
+              +0,+1,+1,
+              +0,+0,-1);
     my @E1 = (-1,+0,-1,
-	      +1,+1,+1,
-	      -1,+1,-1);
+              +1,+1,+1,
+              -1,+1,-1);
     my @E2 = (-1,+1,-1,
-	      +1,+1,+0,
-	      -1,+1,-1);
+              +1,+1,+0,
+              -1,+1,-1);
     my @E3 = (-1,+1,-1,
-	      +1,+1,+1,
-	      -1,+0,-1);
+              +1,+1,+1,
+              -1,+0,-1);
     my @E4 = (-1,+1,-1,
-	      +0,+1,+1,
-	      -1,+1,-1);
+              +0,+1,+1,
+              -1,+1,-1);
     # G are the trimming templates
     my @G1 = (-1,+1,-1,
-	      +0,+1,+0,
-	      +0,+0,+0);
+              +0,+1,+0,
+              +0,+0,+0);
     my @G2 = (+0,+0,+1,
-	      +0,+1,+0,
-	      +0,+0,+0);
+              +0,+1,+0,
+              +0,+0,+0);
     my @G3 = (+0,+0,-1,
-	      +0,+1,+1,
-	      +0,+0,-1);
+              +0,+1,+1,
+              +0,+0,-1);
     my @G4 = (+0,+0,+0,
-	      +0,+1,+0,
-	      +0,+0,+1);
+              +0,+1,+0,
+              +0,+0,+1);
     my @G5 = (+0,+0,+0,
-	      +0,+1,+0,
-	      -1,+1,-1);
+              +0,+1,+0,
+              -1,+1,-1);
     my @G6 = (+0,+0,+0,
-	      +0,+1,+0,
-	      +1,+0,+0);
+              +0,+1,+0,
+              +1,+0,+0);
     my @G7 = (-1,+0,+0,
-	      +1,+1,+0,
-	      -1,+0,+0);
+              +1,+1,+0,
+              -1,+0,+0);
     my @G8 = (+1,+0,+0,
-	      +0,+1,+0,
-	      +0,+0,+0);
+              +0,+1,+0,
+              +0,+0,+0);
     my @trimmer = (\@G1,\@G2,\@G3,\@G4,\@G5,\@G6,\@G7,\@G8);
     my $algorithm = $opt{algorithm};
     $algorithm = 'B' unless $algorithm;
@@ -277,36 +277,36 @@ sub thin {
     $maxiterations = int($width/2) if $width;
     my @thinner;
     if ($algorithm eq 'B') {
-	if ($trimming) {
-	    @thinner = (\@D1,\@D2,\@E1,@trimmer,
-			\@D2,\@D3,\@E2,@trimmer,
-			\@D3,\@D4,\@E3,@trimmer,
-			\@D4,\@D1,\@E4,@trimmer);
-	} else {
-	    @thinner = (\@D1, \@D2, \@E1, \@D2, \@D3, \@E2,
-			\@D3, \@D4, \@E3, \@D4, \@D1, \@E4);
-	}
+        if ($trimming) {
+            @thinner = (\@D1,\@D2,\@E1,@trimmer,
+                        \@D2,\@D3,\@E2,@trimmer,
+                        \@D3,\@D4,\@E3,@trimmer,
+                        \@D4,\@D1,\@E4,@trimmer);
+        } else {
+            @thinner = (\@D1, \@D2, \@E1, \@D2, \@D3, \@E2,
+                        \@D3, \@D4, \@E3, \@D4, \@D1, \@E4);
+        }
     } elsif ($algorithm eq 'A') {
-	if ($trimming) {
-	    @thinner = (\@D1, \@E1, @trimmer,
-			\@D2, \@E2, @trimmer,
-			\@D3, \@E3, @trimmer,
-			\@D4, \@E4, @trimmer);
-	} else {
-	    @thinner = (\@D1, \@E1, \@D2, \@E2, \@D3, \@E3, \@D4, \@E4);
-	}
+        if ($trimming) {
+            @thinner = (\@D1, \@E1, @trimmer,
+                        \@D2, \@E2, @trimmer,
+                        \@D3, \@E3, @trimmer,
+                        \@D4, \@E4, @trimmer);
+        } else {
+            @thinner = (\@D1, \@E1, \@D2, \@E2, \@D3, \@E3, \@D4, \@E4);
+        }
     } else {
-	croak "thin: $algorithm: unknown algorithm";
+        croak "thin: $algorithm: unknown algorithm";
     }
     my ($m, $M, $i) = (0,0,1);
     do {
-	$M = $m;
-	foreach (@thinner) {
-	    $m += ral_grid_apply_templ($self->{GRID}, $_, 0);
-	    print STDERR "#" unless $opt{quiet};
-	}
-	print STDERR " thinning, pass $i/$maxiterations: deleted ", $m-$M, " cells\n" unless $opt{quiet};
-	$i++;
+        $M = $m;
+        foreach (@thinner) {
+            $m += ral_grid_apply_templ($self->{GRID}, $_, 0);
+            print STDERR "#" unless $opt{quiet};
+        }
+        print STDERR " thinning, pass $i/$maxiterations: deleted ", $m-$M, " cells\n" unless $opt{quiet};
+        $i++;
     } while ($m > $M and !($maxiterations > 0 and $i > $maxiterations));
     return $self if defined wantarray;
 }
@@ -326,21 +326,21 @@ sub borders {
     my($self, %opt) = @_;
     $opt{method} = 'recursive' unless $opt{method};
     if ($opt{method} eq 'simple') {
-	if (defined wantarray) {
-	    my $g = new Geo::Raster(ral_grid_borders($self->{GRID}));
-	    return $g;
-	} else {
-	    $self->_new_grid(ral_grid_borders($self->{GRID}));
-	}
+        if (defined wantarray) {
+            my $g = new Geo::Raster(ral_grid_borders($self->{GRID}));
+            return $g;
+        } else {
+            $self->_new_grid(ral_grid_borders($self->{GRID}));
+        }
     } elsif ($opt{method} eq 'recursive') {
-	if (defined wantarray) {
-	    my $g = new Geo::Raster(ral_grid_borders_recursive($self->{GRID}));
-	    return $g;
-	} else {
-	    $self->_new_grid(ral_grid_borders_recursive($self->{GRID}));
-	}
+        if (defined wantarray) {
+            my $g = new Geo::Raster(ral_grid_borders_recursive($self->{GRID}));
+            return $g;
+        } else {
+            $self->_new_grid(ral_grid_borders_recursive($self->{GRID}));
+        }
     } else {
-	croak "borders: $opt{method}: unknown method";
+        croak "borders: $opt{method}: unknown method";
     }
 }
 
@@ -358,10 +358,10 @@ sub areas {
     my $k = shift;
     $k = 3 unless $k;
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_grid_areas($self->{GRID}, $k));
-	return $g;
+        my $g = new Geo::Raster(ral_grid_areas($self->{GRID}, $k));
+        return $g;
     } else {
-	$self->_new_grid(ral_grid_areas($self->{GRID}, $k));
+        $self->_new_grid(ral_grid_areas($self->{GRID}, $k));
     }
 }
 
@@ -392,10 +392,10 @@ sub areas {
 sub connect {
     my $self = shift;
     if (defined wantarray) {
-	$self = new Geo::Raster $self;
-	return ral_grid_connect($self->{GRID});
+        $self = new Geo::Raster $self;
+        return ral_grid_connect($self->{GRID});
     } else {
-	ral_grid_connect($self->{GRID});
+        ral_grid_connect($self->{GRID});
     }
 }
 
@@ -411,10 +411,10 @@ sub number_areas {
     my($self, $connectivity) = @_;
     $connectivity = 8 unless $connectivity;
     if (defined wantarray) {
-	my $g = new Geo::Raster($self);
+        my $g = new Geo::Raster($self);
         return $g if ral_grid_number_of_areas($g->{GRID}, $connectivity);
     } else {
-	ral_grid_number_of_areas($self->{GRID}, $connectivity);	
+        ral_grid_number_of_areas($self->{GRID}, $connectivity);        
     }
 }
 
@@ -472,16 +472,16 @@ sub transform {
     $pick = $pick || 0;
     $value = $value || 0;
     unless ($pick =~ /^\d+$/) {
-	my %map = (mean=>1,variance=>2,min=>10,max=>11,count=>20);
-	$pick = $map{$pick};
-	croak "transform: unrecognised pick method: $pick" unless $pick;
+        my %map = (mean=>1,variance=>2,min=>10,max=>11,count=>20);
+        $pick = $map{$pick};
+        croak "transform: unrecognised pick method: $pick" unless $pick;
     }
     croak "transform: transformation matrix incomplete" if $#$tr<5;
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_grid_transform($self->{GRID}, $tr, $M, $N, $pick, $value));
-	return $g;
+        my $g = new Geo::Raster(ral_grid_transform($self->{GRID}, $tr, $M, $N, $pick, $value));
+        return $g;
     } else {
-	$self->_new_grid(ral_grid_transform($self->{GRID}, $tr, $M, $N, $pick, $value));
+        $self->_new_grid(ral_grid_transform($self->{GRID}, $tr, $M, $N, $pick, $value));
     }
 }
 

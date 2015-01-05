@@ -26,15 +26,15 @@ sub interpolate {
     $param{method} = 'nearest neighbor' if $param{method} eq 'nn';
     my $new;
     if ($param{method} eq 'nearest neighbor') {
-	$new = ral_grid_nn($self->{GRID});
+        $new = ral_grid_nn($self->{GRID});
     } else {
-	croak "interpolation method '$param{method}' not implemented\n";
+        croak "interpolation method '$param{method}' not implemented\n";
     }
     if (defined wantarray) {
-	return Geo::Raster->new($new);
+        return Geo::Raster->new($new);
     } else {
-	ral_grid_destroy($self->{GRID});
-	$self->{GRID} = $new;
+        ral_grid_destroy($self->{GRID});
+        $self->{GRID} = $new;
     }
 }
 
@@ -53,10 +53,10 @@ sub dijkstra {
     my($self, $i, $j) = @_;
     my $new = ral_grid_dijkstra($self->{GRID}, $i, $j);
     if (defined wantarray) {
-	return Geo::Raster->new($new);
+        return Geo::Raster->new($new);
     } else {
-	ral_grid_destroy($self->{GRID});
-	$self->{GRID} = $new;
+        ral_grid_destroy($self->{GRID});
+        $self->{GRID} = $new;
     }
 }
 
@@ -73,37 +73,37 @@ sub colored_map {
     my $base;
     my %nn;
     foreach $base (sort {$a<=>$b} keys %{$n}) {
-    	# Going trough each value (zone)
-	next if $base == 0; # Zero values are already the smallest.
-	my $m = 1;
-	$map{$base} = $m unless defined($map{$base}); # The first gets a value 1.
-	my $skip = $map{$base};
-	# Going trough each neighbor of the value.
-	foreach (@{$$n{$base}}) {
-	    # Checking if the neighbor does not already exist in the map hash.
-	    if (!defined($map{$_})) {
-		$m++;
-		$m++ if $m == $skip;
-		$map{$_} = $m; # Giving the neighbor a higher value.
-	    } elsif ($map{$_} == $skip) {
-		# Redefining:
-		$m++;
-		$m++ if $m == $skip;
-		my $m2 = $m;
-		while ($nn{$m2}{$_}) {
-		    # Some base -> $m2 and $_ is already a neighbor of $m2
-		    $m2++;
-		    $m2++ if $m2 == $skip;
-		}
-		$map{$_} = $m2;
-	    }
-	    $nn{$skip}{$_} = 1;
-	}
+            # Going trough each value (zone)
+        next if $base == 0; # Zero values are already the smallest.
+        my $m = 1;
+        $map{$base} = $m unless defined($map{$base}); # The first gets a value 1.
+        my $skip = $map{$base};
+        # Going trough each neighbor of the value.
+        foreach (@{$$n{$base}}) {
+            # Checking if the neighbor does not already exist in the map hash.
+            if (!defined($map{$_})) {
+                $m++;
+                $m++ if $m == $skip;
+                $map{$_} = $m; # Giving the neighbor a higher value.
+            } elsif ($map{$_} == $skip) {
+                # Redefining:
+                $m++;
+                $m++ if $m == $skip;
+                my $m2 = $m;
+                while ($nn{$m2}{$_}) {
+                    # Some base -> $m2 and $_ is already a neighbor of $m2
+                    $m2++;
+                    $m2++ if $m2 == $skip;
+                }
+                $map{$_} = $m2;
+            }
+            $nn{$skip}{$_} = 1;
+        }
     }
     if (defined wantarray) {
-	return $self->map(\%map);
+        return $self->map(\%map);
     } else {
-	$self->map(\%map);
+        $self->map(\%map);
     }
 }
 
@@ -158,33 +158,33 @@ sub polygonize {
     my $vector;
     
     if ($params{vector}) {
-	croak "Layer given as parameter does not contain field '$params{pixel_value_field}' for pixel values." 
-	    unless $params{vector}->schema->field($params{pixel_value_field});
-	$vector = $params{vector};
+        croak "Layer given as parameter does not contain field '$params{pixel_value_field}' for pixel values." 
+            unless $params{vector}->schema->field($params{pixel_value_field});
+        $vector = $params{vector};
     } else {
-	$params{geometry_type} = 'Polygon';
-	delete $params{geometries};
-	delete $params{features};
-	$params{create} = 'polygonized' unless ($params{create} or $params{layer} or $params{open});	
-	if ($params{schema}) {
-	    my $found;
-	    for my $field (@{$params{schema}{Fields}}) {
-		$found = 1, last if $field->{Name} eq $params{pixel_value_field};
-	    }
-	    push @{$params{schema}{Fields}}, { Name => 'value', Type => 'Integer' } unless $found;
-	}
-	eval {
-	    $vector = Geo::Vector->new(%params);
-	};
-	croak "$@" if $@;
+        $params{geometry_type} = 'Polygon';
+        delete $params{geometries};
+        delete $params{features};
+        $params{create} = 'polygonized' unless ($params{create} or $params{layer} or $params{open});        
+        if ($params{schema}) {
+            my $found;
+            for my $field (@{$params{schema}{Fields}}) {
+                $found = 1, last if $field->{Name} eq $params{pixel_value_field};
+            }
+            push @{$params{schema}{Fields}}, { Name => 'value', Type => 'Integer' } unless $found;
+        }
+        eval {
+            $vector = Geo::Vector->new(%params);
+        };
+        croak "$@" if $@;
     }
 
     my $dataset = $self->dataset;
     my $band = $dataset->Band(1);
     my $layer = $vector->{OGR}->{Layer};
     eval {
-	Geo::GDAL::Polygonize($band, undef, $layer, $params{pixel_value_field}, $params{options}, $params{callback}, $params{callback_date});
-	};
+        Geo::GDAL::Polygonize($band, undef, $layer, $params{pixel_value_field}, $params{options}, $params{callback}, $params{callback_date});
+        };
     croak "$@" if $@;
 
     return $vector;
@@ -208,10 +208,10 @@ sub polygonize {
 sub ca_step {
     my($self, @k) = @_;
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_ca_step($self->{GRID}, \@k));
-	return $g;
+        my $g = new Geo::Raster(ral_ca_step($self->{GRID}, \@k));
+        return $g;
     } else {
-	$self->_new_grid(ral_ca_step($self->{GRID}, \@k));
+        $self->_new_grid(ral_ca_step($self->{GRID}, \@k));
     }
 }
 

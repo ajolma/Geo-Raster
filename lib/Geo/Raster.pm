@@ -59,10 +59,10 @@ require Exporter;
 our @ISA = qw( Exporter );
 
 our %EXPORT_TAGS = (types  => [ qw ( $INTEGER_GRID $REAL_GRID ) ],
-		    logics => [ qw ( &not &and &or ) ] );
+                    logics => [ qw ( &not &and &or ) ] );
 
 our @EXPORT_OK = qw ( $INTEGER_GRID $REAL_GRID
-		      &not &and &or );
+                      &not &and &or );
 
 our $AUTOLOAD;
 
@@ -122,10 +122,10 @@ sub AUTOLOAD {
     my $self = shift;
     (my $sub = $AUTOLOAD) =~ s/.*:://;
     if (exists $dispatch{$sub}) {
-	unshift @_, $self->band();
-	goto $dispatch{$sub};
+        unshift @_, $self->band();
+        goto $dispatch{$sub};
     } else {
-	croak "Undefined subroutine $sub";
+        croak "Undefined subroutine $sub";
     }
 }
 
@@ -140,9 +140,9 @@ sub from_piddle {
     # should test against libral types
     my $grid;
     if ($type < 5) { # an integer type
-	$self->{GRID} = ral_grid_create($INTEGER_GRID, $dims[1], $dims[0]);
+        $self->{GRID} = ral_grid_create($INTEGER_GRID, $dims[1], $dims[0]);
     } else {
-	$self->{GRID} = ral_grid_create($REAL_GRID, $dims[1], $dims[0]);
+        $self->{GRID} = ral_grid_create($REAL_GRID, $dims[1], $dims[0]);
     }
     my $data = $pdl->get_dataref;
     pdl2grid($data, $type, $self->{GRID});
@@ -234,42 +234,42 @@ sub new {
     my %params;
 
     if (@_ == 1 and ref($_[0]) eq 'ral_gridPtr') {
-	
-	$params{use} = shift;
-	
+        
+        $params{use} = shift;
+        
     } elsif (@_ == 1 and blessed($_[0]) and $_[0]->isa('Geo::Raster')) { # Geo::Raster->new($raster)
-	
-	$params{copy} = shift;
-	
+        
+        $params{copy} = shift;
+        
     } elsif (@_ == 1 and ref($_[0]) eq 'PDL') {
-	
-	$params{piddle} = shift;
-	
+        
+        $params{piddle} = shift;
+        
     } elsif (@_ == 1) {
-	
-	$params{filename} = shift;
-	
+        
+        $params{filename} = shift;
+        
     } elsif (@_ == 2 and ($_[0] =~ /\d+/) and ($_[1] =~ /\d+/)) {
-	
-	$params{M} = shift;
-	$params{N} = shift;
-	$params{datatype} = $INTEGER_GRID;
-	
+        
+        $params{M} = shift;
+        $params{N} = shift;
+        $params{datatype} = $INTEGER_GRID;
+        
     } elsif (@_ == 3) {
-	
-	$params{datatype} = shift;
-	$params{M} = shift;
-	$params{N} = shift;
+        
+        $params{datatype} = shift;
+        $params{M} = shift;
+        $params{N} = shift;
 
     }
 
     if (@_) {
-	my %p = @_;
-	for (keys %p) {
-	    $params{$_} = $p{$_} unless exists $params{$_};
-	}
-	$params{M} = $params{rows} if exists $params{rows};
-	$params{N} = $params{columns} if exists $params{columns};
+        my %p = @_;
+        for (keys %p) {
+            $params{$_} = $p{$_} unless exists $params{$_};
+        }
+        $params{M} = $params{rows} if exists $params{rows};
+        $params{N} = $params{columns} if exists $params{columns};
     }
 
     my $self = {};
@@ -280,27 +280,27 @@ sub new {
     $params{datatype} = $params{datatype} ? _interpret_datatype($params{datatype}) : 0;
     
     if (blessed($params{copy}) and $params{copy}->isa('Geo::Raster')) {
-	croak "Can't copy an empty raster." unless $params{copy}->{GRID};
-	$self->{GRID} = ral_grid_create_copy($params{copy}->{GRID}, $params{datatype})
+        croak "Can't copy an empty raster." unless $params{copy}->{GRID};
+        $self->{GRID} = ral_grid_create_copy($params{copy}->{GRID}, $params{datatype})
     } elsif ($params{use} and ref($params{use}) eq 'ral_gridPtr') {
-	$self->{GRID} = $params{use};
+        $self->{GRID} = $params{use};
     } elsif (defined $params{piddle}) {
-	from_piddle($self, $params{piddle});
+        from_piddle($self, $params{piddle});
     } elsif (defined $params{like}) {
-	$self->{GRID} = ral_grid_create_like($params{like}->{GRID}, $params{datatype});
+        $self->{GRID} = ral_grid_create_like($params{like}->{GRID}, $params{datatype});
     } elsif ($params{filename} or $params{dataset}) {
-	gdal_open($self, %params);
-	$self->{FILENAME} = $params{filename};
+        gdal_open($self, %params);
+        $self->{FILENAME} = $params{filename};
     } elsif ($params{M} and $params{N}) {
-	$params{datatype} = $INTEGER_GRID unless $params{datatype};
-	$self->{GRID} = ral_grid_create($params{datatype}, $params{M}, $params{N});
-	if ($params{world}) {
-	    ref $params{world} eq 'HASH' ? 
-		$self->world( %{$params{world}} ) :
-		$self->world( minx=>$params{world}->[0], 
-			      miny=>$params{world}->[1],
-			      maxx=>$params{world}->[2] );
-	}
+        $params{datatype} = $INTEGER_GRID unless $params{datatype};
+        $self->{GRID} = ral_grid_create($params{datatype}, $params{M}, $params{N});
+        if ($params{world}) {
+            ref $params{world} eq 'HASH' ? 
+                $self->world( %{$params{world}} ) :
+                $self->world( minx=>$params{world}->[0], 
+                              miny=>$params{world}->[1],
+                              maxx=>$params{world}->[2] );
+        }
     }
     $self->_attributes() if $self->{GRID};
     return $self;
@@ -344,40 +344,40 @@ sub _with_decimal_point {
 sub world {
     my $self = shift;
     if (@_) {
-	my($cell_size,$minx,$miny,$maxx,$maxy);
-	my %o = @_;
-	for (keys %o) {
-	    my $k = $_;
-	    s/_//g;
-	    $cell_size = $o{$k} if /cellsize/i;
-	    $minx = $o{$k} if /minx/i;
-	    $miny = $o{$k} if /miny/i;
-	    $maxx = $o{$k} if /maxx/i;
-	    $maxy = $o{$k} if /maxy/i;
-	}
-	if ($cell_size and defined($minx) and defined($miny)) {
-	    ral_grid_set_bounds_csnn($self->{GRID}, $cell_size, $minx, $miny);
-	} elsif ($cell_size and defined($minx) and defined($maxy)) {
-	    ral_grid_set_bounds_csnx($self->{GRID}, $cell_size, $minx, $maxy);
-	} elsif ($cell_size and defined($maxx) and defined($miny)) {
-	    ral_grid_set_bounds_csxn($self->{GRID}, $cell_size, $maxx, $miny);
-	} elsif ($cell_size and defined($maxx) and defined($maxy)) {
-	    ral_grid_set_bounds_csxx($self->{GRID}, $cell_size, $maxx, $maxy);
-	} elsif (defined($minx) and defined($maxx) and defined($miny)) {
-	    ral_grid_set_bounds_nxn($self->{GRID}, $minx, $maxx, $miny);
-	} elsif (defined($minx) and defined($maxx) and defined($maxy)) {
-	    ral_grid_set_bounds_nxx($self->{GRID}, $minx, $maxx, $maxy);
-	} elsif (defined($minx) and defined($miny) and defined($maxy)) {
-	    ral_grid_set_bounds_nnx($self->{GRID}, $minx, $miny, $maxy);
-	} elsif (defined($maxx) and defined($miny) and defined($maxy)) {
-	    ral_grid_set_bounds_xnx($self->{GRID}, $maxx, $miny, $maxy);
-	}
+        my($cell_size,$minx,$miny,$maxx,$maxy);
+        my %o = @_;
+        for (keys %o) {
+            my $k = $_;
+            s/_//g;
+            $cell_size = $o{$k} if /cellsize/i;
+            $minx = $o{$k} if /minx/i;
+            $miny = $o{$k} if /miny/i;
+            $maxx = $o{$k} if /maxx/i;
+            $maxy = $o{$k} if /maxy/i;
+        }
+        if ($cell_size and defined($minx) and defined($miny)) {
+            ral_grid_set_bounds_csnn($self->{GRID}, $cell_size, $minx, $miny);
+        } elsif ($cell_size and defined($minx) and defined($maxy)) {
+            ral_grid_set_bounds_csnx($self->{GRID}, $cell_size, $minx, $maxy);
+        } elsif ($cell_size and defined($maxx) and defined($miny)) {
+            ral_grid_set_bounds_csxn($self->{GRID}, $cell_size, $maxx, $miny);
+        } elsif ($cell_size and defined($maxx) and defined($maxy)) {
+            ral_grid_set_bounds_csxx($self->{GRID}, $cell_size, $maxx, $maxy);
+        } elsif (defined($minx) and defined($maxx) and defined($miny)) {
+            ral_grid_set_bounds_nxn($self->{GRID}, $minx, $maxx, $miny);
+        } elsif (defined($minx) and defined($maxx) and defined($maxy)) {
+            ral_grid_set_bounds_nxx($self->{GRID}, $minx, $maxx, $maxy);
+        } elsif (defined($minx) and defined($miny) and defined($maxy)) {
+            ral_grid_set_bounds_nnx($self->{GRID}, $minx, $miny, $maxy);
+        } elsif (defined($maxx) and defined($miny) and defined($maxy)) {
+            ral_grid_set_bounds_xnx($self->{GRID}, $maxx, $miny, $maxy);
+        }
     } elsif ($self->{GDAL}) {
-	my $dataset = $self->{GDAL}->{dataset};
+        my $dataset = $self->{GDAL}->{dataset};
 
-	my @t = $dataset->GeoTransform();
-	my $h = $dataset->{RasterYSize};
-	my $w = $dataset->{RasterXSize};
+        my @t = $dataset->GeoTransform();
+        my $h = $dataset->{RasterYSize};
+        my $w = $dataset->{RasterXSize};
         {
             my $min_x = $t[1] > 0 ? $t[0] : $t[0]+$w*$t[1];
             my $max_x = $t[1] > 0 ? $t[0]+$w*$t[1] : $t[0];
@@ -408,12 +408,12 @@ sub world {
         $max_x = $x if $x > $max_x;
         $max_y = $y if $y > $max_y;
 
-	return ($min_x, $min_y, $max_x, $max_y);
+        return ($min_x, $min_y, $max_x, $max_y);
     } elsif (!$self->{GRID}) {
-	return ();
+        return ();
     } else {
-	my $w = ral_grid_get_world($self->{GRID});
-	return @$w;
+        my $w = ral_grid_get_world($self->{GRID});
+        return @$w;
     }
     #$self->_attributes;
 }
@@ -463,7 +463,7 @@ sub flip_vertical {
 sub cell_in {
     my($self, @cell) = @_;
     return ($cell[0] >= 0 and $cell[0] < $self->{M} and 
-	    $cell[1] >= 0 and $cell[1] < $self->{N})
+            $cell[1] >= 0 and $cell[1] < $self->{N})
 }
 
 ## @method boolean point_in(@point)
@@ -475,9 +475,9 @@ sub point_in {
     my($self, @point) = @_;
     my $world = ral_grid_get_world($self->{GRID});
     return ($point[0] >= $world->[0] and 
-	    $point[0] <= $world->[2] and 
-	    $point[1] >= $world->[1] and 
-	    $point[1] <= $world->[3])
+            $point[0] <= $world->[2] and 
+            $point[1] >= $world->[1] and 
+            $point[1] <= $world->[3])
 }
 
 ## @method @g2w(@cell)
@@ -488,10 +488,10 @@ sub point_in {
 sub g2w {
     my($self, @cell) = @_;
     if ($self->{GDAL}) {
-	my @t = $self->{GDAL}->{dataset}->GeoTransform;
-	my $x = $t[0] + ($cell[1]+0.5)*$t[1];
-	my $y = $t[3] - ($cell[0]+0.5)*$t[5];
-	return ($x,$y);
+        my @t = $self->{GDAL}->{dataset}->GeoTransform;
+        my $x = $t[0] + ($cell[1]+0.5)*$t[1];
+        my $y = $t[3] - ($cell[0]+0.5)*$t[5];
+        return ($x,$y);
     }
     my $point = ral_grid_cell2point( $self->{GRID}, @cell);
     return @$point;
@@ -505,12 +505,12 @@ sub g2w {
 sub w2g {
     my($self, @point) = @_;
     if ($self->{GDAL}) {
-	my @t = $self->{GDAL}->{dataset}->GeoTransform;
-	$point[0] -= $t[0];
-	$point[0] /= $t[1];
-	$point[1] -= $t[3];
-	$point[1] /= $t[5];
-	return (POSIX::floor($point[1]),POSIX::floor($point[0]));
+        my @t = $self->{GDAL}->{dataset}->GeoTransform;
+        $point[0] -= $t[0];
+        $point[0] /= $t[1];
+        $point[1] -= $t[3];
+        $point[1] /= $t[5];
+        return (POSIX::floor($point[1]),POSIX::floor($point[0]));
     }
     my $cell = ral_grid_point2cell($self->{GRID}, @point);
     return @$cell;
@@ -526,9 +526,9 @@ sub w2g {
 sub ga2wa {
     my($self, @ga) = @_;
     if ($self->{GDAL}) {
-	my @min = $self->g2w($ga[0],$ga[3]);
-	my @max = $self->g2w($ga[2],$ga[1]);
-	return (@min,@max);
+        my @min = $self->g2w($ga[0],$ga[3]);
+        my @max = $self->g2w($ga[2],$ga[1]);
+        return (@min,@max);
     }
     my $min = ral_grid_cell2point($self->{GRID}, $ga[0], $ga[3]);
     my $max = ral_grid_cell2point($self->{GRID}, $ga[2], $ga[1]);
@@ -546,9 +546,9 @@ sub ga2wa {
 sub wa2ga {
     my($self, @wa) = @_;
     if ($self->{GDAL}) {
-	my @ul = $self->w2g($wa[0],$wa[3]);
-	my @lr = $self->w2g($wa[2],$wa[1]);
-	return (@ul,@lr);
+        my @ul = $self->w2g($wa[0],$wa[3]);
+        my @lr = $self->w2g($wa[2],$wa[1]);
+        return (@ul,@lr);
     }
     my $ul = ral_grid_point2cell($self->{GRID}, $wa[0], $wa[3]);
     my $lr = ral_grid_point2cell($self->{GRID}, $wa[2], $wa[1]);
@@ -563,8 +563,8 @@ sub wa2ga {
 sub mask {
     my($self, $mask) = @_;
     $mask ? 
-	ral_grid_set_mask($self->{GRID}, $mask->{GRID}) : 
-	ral_grid_clear_mask($self->{GRID});
+        ral_grid_set_mask($self->{GRID}, $mask->{GRID}) : 
+        ral_grid_clear_mask($self->{GRID});
 }
 
 ## @method void set(@cell, $value)
@@ -587,26 +587,26 @@ sub set {
     my($self, $i, $j, $value) = @_;
     croak "set: GRID is undefined" unless $self->{GRID};
     if (defined($j)) {
-	if (!defined($value) or $value eq 'nodata') {
-	    return ral_grid_set_nodata($self->{GRID}, $i, $j);
-	}
-	if (ref $value) {
-	    ral_grid_set_focal($self->{GRID}, $i, $j, $value);
-	} else {
-	    return ral_grid_set($self->{GRID}, $i, $j, $value);
-	}
+        if (!defined($value) or $value eq 'nodata') {
+            return ral_grid_set_nodata($self->{GRID}, $i, $j);
+        }
+        if (ref $value) {
+            ral_grid_set_focal($self->{GRID}, $i, $j, $value);
+        } else {
+            return ral_grid_set($self->{GRID}, $i, $j, $value);
+        }
     } else {
-	if (ref($i)) {
-	    if (blessed($i) and $i->isa('Geo::Raster') and $i->{GRID}) {
-		return ral_grid_copy($self->{GRID}, $i->{GRID});
-	    } else {
-		croak "can't copy a ",ref($i)," onto a grid\n";
-	    }
-	}
-	if (!defined($i) or $i eq 'nodata') {
-	    return ral_grid_set_all_nodata($self->{GRID});
-	}
-	ral_grid_set_all($self->{GRID}, $i);
+        if (ref($i)) {
+            if (blessed($i) and $i->isa('Geo::Raster') and $i->{GRID}) {
+                return ral_grid_copy($self->{GRID}, $i->{GRID});
+            } else {
+                croak "can't copy a ",ref($i)," onto a grid\n";
+            }
+        }
+        if (!defined($i) or $i eq 'nodata') {
+            return ral_grid_set_all_nodata($self->{GRID});
+        }
+        ral_grid_set_all($self->{GRID}, $i);
     }
 }
 
@@ -621,14 +621,14 @@ sub get {
     my($self, $i, $j, $distance) = @_;
     return unless $self->{GRID};
     if ($self->{GDAL}) {
-	my @point = $self->g2w($i, $j);
-	my $cell = ral_grid_point2cell($self->{GRID}, @point);
-	($i, $j) = @$cell;
+        my @point = $self->g2w($i, $j);
+        my $cell = ral_grid_point2cell($self->{GRID}, @point);
+        ($i, $j) = @$cell;
     }
     unless (defined $distance) {
-	return ral_grid_get($self->{GRID}, $i, $j);
+        return ral_grid_get($self->{GRID}, $i, $j);
     } else {
-	return ral_grid_get_focal($self->{GRID}, $i, $j, $distance);
+        return ral_grid_get_focal($self->{GRID}, $i, $j, $distance);
     }
 }
 
@@ -643,21 +643,21 @@ sub get {
 sub cell {
     my($self, $i, $j, $value) = @_;
     if ($self->{GDAL}) {
-	my @point = $self->g2w($i, $j);
-	if ($self->{GRID}) {
-	    my $cell = ral_grid_point2cell($self->{GRID}, @point);
-	    ($i, $j) = @$cell;
-	}
+        my @point = $self->g2w($i, $j);
+        if ($self->{GRID}) {
+            my $cell = ral_grid_point2cell($self->{GRID}, @point);
+            ($i, $j) = @$cell;
+        }
     }
     if (defined $value) {
-	croak "cell: GRID is undefined" unless $self->{GRID};
-	if (!defined($value) or $value eq 'nodata') {
-	    ral_grid_set_nodata($self->{GRID}, $i, $j);
-	}
-	ral_grid_set($self->{GRID}, $i, $j, $value);
+        croak "cell: GRID is undefined" unless $self->{GRID};
+        if (!defined($value) or $value eq 'nodata') {
+            ral_grid_set_nodata($self->{GRID}, $i, $j);
+        }
+        ral_grid_set($self->{GRID}, $i, $j, $value);
     } else {
-	return unless $self->{GRID};
-	ral_grid_get($self->{GRID}, $i, $j);
+        return unless $self->{GRID};
+        ral_grid_get($self->{GRID}, $i, $j);
     }
 }
 
@@ -675,21 +675,21 @@ sub point {
    
     if (defined $value) {
 
-	croak "point: GRID is undefined" unless $self->{GRID};
+        croak "point: GRID is undefined" unless $self->{GRID};
 
-	my $cell = ral_grid_point2cell($self->{GRID}, $x, $y);
+        my $cell = ral_grid_point2cell($self->{GRID}, $x, $y);
 
-	if (!defined($value) or $value eq 'nodata') {
-	    ral_grid_set_nodata($self->{GRID}, $cell->[0], $cell->[1]);
-	}
-	ral_grid_set($self->{GRID}, $cell->[0], $cell->[1], $value);
+        if (!defined($value) or $value eq 'nodata') {
+            ral_grid_set_nodata($self->{GRID}, $cell->[0], $cell->[1]);
+        }
+        ral_grid_set($self->{GRID}, $cell->[0], $cell->[1], $value);
 
     } else {
 
-	return unless $self->{GRID};
+        return unless $self->{GRID};
 
-	my $cell = ral_grid_point2cell($self->{GRID}, $x, $y);
-	ral_grid_get($self->{GRID}, $cell->[0], $cell->[1]);
+        my $cell = ral_grid_point2cell($self->{GRID}, $x, $y);
+        ral_grid_get($self->{GRID}, $cell->[0], $cell->[1]);
 
     }
 }
@@ -717,19 +717,19 @@ sub data {
 sub schema {
     my($self, $schema) = @_;
     if ($schema) {
-    	
+            
     } else {
-	$schema = { GeometryType => 'Polygon',
-		    Fields => [ { Name => 'Cell value', Type => $self->_type_name() } ] };
-	if ($self->{TABLE_NAMES}) {
-	    for my $i (0..$#{$self->{TABLE_NAMES}}) {
-		push @{$schema->{Fields}}, {
-		    Name => $self->{TABLE_NAMES}->[$i],
-		    Type => $self->{TABLE_TYPES}->[$i],
-		}
-	    }
-	}
-	return bless $schema, 'Gtk2::Ex::Geo::Schema';
+        $schema = { GeometryType => 'Polygon',
+                    Fields => [ { Name => 'Cell value', Type => $self->_type_name() } ] };
+        if ($self->{TABLE_NAMES}) {
+            for my $i (0..$#{$self->{TABLE_NAMES}}) {
+                push @{$schema->{Fields}}, {
+                    Name => $self->{TABLE_NAMES}->[$i],
+                    Type => $self->{TABLE_TYPES}->[$i],
+                }
+            }
+        }
+        return bless $schema, 'Gtk2::Ex::Geo::Schema';
     }
 }
 
@@ -744,8 +744,8 @@ sub has_field {
     my($self, $field_name) = @_;
     return 1 if $field_name eq 'Cell value';
     return 0 unless $self->{TABLE_NAMES} and @{$self->{TABLE_NAMES}};
-    for my $name (@{$self->{TABLE_NAMES}}) {	
-		return 1 if $name eq $field_name;
+    for my $name (@{$self->{TABLE_NAMES}}) {        
+                return 1 if $name eq $field_name;
     }
     return 0;
 }
@@ -764,29 +764,29 @@ sub has_field {
 sub table {
     my($self, $table) = @_;
     if (ref $table) {
-	$self->{TABLE_NAMES} = 0;
-	$self->{TABLE_TYPES} = 0;
-	$self->{TABLE} = [];
-	for my $record (@$table) {
-	    $self->{TABLE_NAMES} = [@$record],next unless $self->{TABLE_NAMES};
-	    $self->{TABLE_TYPES} = [@$record],next unless $self->{TABLE_TYPES};
-	    push @{$self->{TABLE}}, [@$record];
-	}
+        $self->{TABLE_NAMES} = 0;
+        $self->{TABLE_TYPES} = 0;
+        $self->{TABLE} = [];
+        for my $record (@$table) {
+            $self->{TABLE_NAMES} = [@$record],next unless $self->{TABLE_NAMES};
+            $self->{TABLE_TYPES} = [@$record],next unless $self->{TABLE_TYPES};
+            push @{$self->{TABLE}}, [@$record];
+        }
     } elsif (defined $table) {
-	open(my $fh, '<', $table) or croak "can't read from $table: $!\n";
-	$self->{TABLE_NAMES} = 0;
-	$self->{TABLE_TYPES} = 0;
-	$self->{TABLE} = [];
-	while (<$fh>) {
-	    next if /^#/;
-	    my @record = split /\t/;
-	    $self->{TABLE_NAMES} = [@record],next unless $self->{TABLE_NAMES};
-	    $self->{TABLE_TYPES} = [@record],next unless $self->{TABLE_TYPES};
-	    push @{$self->{TABLE}},\@record;
-	}
-	close($fh);
+        open(my $fh, '<', $table) or croak "can't read from $table: $!\n";
+        $self->{TABLE_NAMES} = 0;
+        $self->{TABLE_TYPES} = 0;
+        $self->{TABLE} = [];
+        while (<$fh>) {
+            next if /^#/;
+            my @record = split /\t/;
+            $self->{TABLE_NAMES} = [@record],next unless $self->{TABLE_NAMES};
+            $self->{TABLE_TYPES} = [@record],next unless $self->{TABLE_TYPES};
+            push @{$self->{TABLE}},\@record;
+        }
+        close($fh);
     } else {
-	return $self->{TABLE};
+        return $self->{TABLE};
     }
 }
 
@@ -810,27 +810,27 @@ sub value_range {
     my $field_name;
     my %param;
     if (@_ == 1) {
-	$field_name = shift;
+        $field_name = shift;
     } else {
-	%param = @_;
-	$field_name = $param{field_name};
+        %param = @_;
+        $field_name = $param{field_name};
     }
     if (defined $field_name and $field_name ne 'Cell value') {
-	my $schema = $self->schema()->{$field_name};
-	croak "value_range: field with name '$field_name' does not exist" unless defined $schema;
-	croak "value_range: can't use value from field '$field_name' since its' type is '$schema->{TypeName}'"
-	    unless $schema->{TypeName} eq 'Integer' or $schema->{TypeName} eq 'Real';
-	my $field = $schema->{Number};
-	my @range;
-	for my $r (@{$self->{TABLE}}) {
-	    my $value = $r->[$field];
-	    $range[0] = defined $range[0] ? ($range[0] < $value ? $range[0] : $value) : $value;
-	    $range[1] = defined $range[1] ? ($range[1] > $value ? $range[1] : $value) : $value;
-	}
-	return @range;
+        my $schema = $self->schema()->{$field_name};
+        croak "value_range: field with name '$field_name' does not exist" unless defined $schema;
+        croak "value_range: can't use value from field '$field_name' since its' type is '$schema->{TypeName}'"
+            unless $schema->{TypeName} eq 'Integer' or $schema->{TypeName} eq 'Real';
+        my $field = $schema->{Number};
+        my @range;
+        for my $r (@{$self->{TABLE}}) {
+            my $value = $r->[$field];
+            $range[0] = defined $range[0] ? ($range[0] < $value ? $range[0] : $value) : $value;
+            $range[1] = defined $range[1] ? ($range[1] > $value ? $range[1] : $value) : $value;
+        }
+        return @range;
     } elsif ($self->{GDAL}) {
-	my $band = $self->band;
-	return($band->GetMinimum, $band->GetMaximum) if $band;
+        my $band = $self->band;
+        return($band->GetMinimum, $band->GetMaximum) if $band;
     }
     return () unless $self->{GRID};
     my $range = ral_grid_get_value_range($self->{GRID});
@@ -863,11 +863,11 @@ sub _datatype {
 sub datatype {
     my $self = shift;
     if ($self->{GDAL} and $self->{GDAL}->{dataset}) {
-	my $t = $self->{GDAL}->{dataset}->GetRasterBand($self->{GDAL}->{band})->DataType;
-	return 'GDAL Complex Data Type' if $t =~ /^C/;
-	return 'Integer' if $t eq 'Byte' or $t =~ /Int/;
-	return 'Real' if $t =~ /Float/;
-	return 'Unknown GDAL Data Type';
+        my $t = $self->{GDAL}->{dataset}->GetRasterBand($self->{GDAL}->{band})->DataType;
+        return 'GDAL Complex Data Type' if $t =~ /^C/;
+        return 'Integer' if $t eq 'Byte' or $t =~ /Int/;
+        return 'Real' if $t =~ /Float/;
+        return 'Unknown GDAL Data Type';
     }
     return unless $self->{GRID};
     $self->{DATATYPE} = ral_grid_get_datatype($self->{GRID});
@@ -891,17 +891,17 @@ sub size {
     my $self = shift;
     my($i, $j) = @_;
     if (defined($i) and defined($j) and ($i =~ /^\d+$/) and ($j =~ /^\d+$/)) {
-	return ral_grid_zonesize($self->{GRID}, $i, $j);
+        return ral_grid_zonesize($self->{GRID}, $i, $j);
     } else {
-	my %o = @_;
-	if ($self->{GDAL}) {
-	    return ($self->{GDAL}->{dataset}->{RasterYSize}, 
-		    $self->{GDAL}->{dataset}->{RasterXSize});
-	} elsif (!$self->{GRID}) {
-	    return ();
-	} else {
-	    return (ral_grid_get_height($self->{GRID}), ral_grid_get_width($self->{GRID}));
-	}
+        my %o = @_;
+        if ($self->{GDAL}) {
+            return ($self->{GDAL}->{dataset}->{RasterYSize}, 
+                    $self->{GDAL}->{dataset}->{RasterXSize});
+        } elsif (!$self->{GRID}) {
+            return ();
+        } else {
+            return (ral_grid_get_height($self->{GRID}), ral_grid_get_width($self->{GRID}));
+        }
     }
 }
 
@@ -912,13 +912,13 @@ sub size {
 sub cell_size {
     my($self, %o) = @_;
     if ($self->{GDAL}) {
-	my @t = $self->{GDAL}->{dataset}->GeoTransform;
-	return (CORE::abs($t[1]), CORE::abs($t[5]));
+        my @t = $self->{GDAL}->{dataset}->GeoTransform;
+        return (CORE::abs($t[1]), CORE::abs($t[5]));
     } elsif (!$self->{GRID}) {
-	return undef;
+        return undef;
     } else {
-	$self->{CELL_SIZE} = ral_grid_get_cell_size($self->{GRID});
-	return $self->{CELL_SIZE};
+        $self->{CELL_SIZE} = ral_grid_get_cell_size($self->{GRID});
+        return $self->{CELL_SIZE};
     }
 }
 
@@ -935,9 +935,9 @@ sub nodata_value {
         $nodata_value = shift;
         $nodata_value = undef if $nodata_value eq ''; # support old, now deprecated style
         if ($self->{GDAL}) {
-	    my $band = $self->band();
-	    $nodata_value = $band->NoDataValue($nodata_value) if $band;
-	} else {
+            my $band = $self->band();
+            $nodata_value = $band->NoDataValue($nodata_value) if $band;
+        } else {
             if (CORE::not defined($nodata_value)) {
                 ral_grid_remove_nodata_value($self->{GRID});
             } else {
@@ -945,12 +945,12 @@ sub nodata_value {
             }
         }
     } else {
-	if ($self->{GDAL}) {
-	    my $band = $self->band();
-	    $nodata_value = $band->NoDataValue() if $band;
-	} else {
-	    $nodata_value = ral_grid_get_nodata_value($self->{GRID});
-	}
+        if ($self->{GDAL}) {
+            my $band = $self->band();
+            $nodata_value = $band->NoDataValue() if $band;
+        } else {
+            $nodata_value = ral_grid_get_nodata_value($self->{GRID});
+        }
     }
     return $nodata_value;
 }
@@ -976,18 +976,18 @@ sub min {
     my $second = shift;
     $self = Geo::Raster->new($self) if defined wantarray;
     if (ref($second)) {
-	ral_grid_min_grid($self->{GRID}, $second->{GRID});
+        ral_grid_min_grid($self->{GRID}, $second->{GRID});
     } else {
-	if (defined($second)) {
-	    if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID and $second =~ /^-?\d+$/) {
-		ral_grid_min_integer($self->{GRID}, $second);
-	    } else {
-		ral_grid_min_real($self->{GRID}, $second);
-	    }
-	} else {
-	    my $range = ral_grid_get_value_range($self->{GRID});
-	    return $range->[0];
-	}
+        if (defined($second)) {
+            if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID and $second =~ /^-?\d+$/) {
+                ral_grid_min_integer($self->{GRID}, $second);
+            } else {
+                ral_grid_min_real($self->{GRID}, $second);
+            }
+        } else {
+            my $range = ral_grid_get_value_range($self->{GRID});
+            return $range->[0];
+        }
     }
     return $self if defined wantarray;
 }
@@ -1013,18 +1013,18 @@ sub max {
     my $second = shift;   
     $self = Geo::Raster->new($self) if defined wantarray;
     if (ref($second)) {
-	ral_grid_max_grid($self->{GRID}, $second->{GRID});
+        ral_grid_max_grid($self->{GRID}, $second->{GRID});
     } else {
-	if (defined($second)) {
-	    if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID and $second =~ /^-?\d+$/) {
-		ral_grid_max_integer($self->{GRID}, $second);
-	    } else {
-		ral_grid_max_real($self->{GRID}, $second);
-	    }
-	} else {
-	    my $range = ral_grid_get_value_range($self->{GRID});
-	    return $range->[1];
-	}
+        if (defined($second)) {
+            if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID and $second =~ /^-?\d+$/) {
+                ral_grid_max_integer($self->{GRID}, $second);
+            } else {
+                ral_grid_max_real($self->{GRID}, $second);
+            }
+        } else {
+            my $range = ral_grid_get_value_range($self->{GRID});
+            return $range->[1];
+        }
     }
     return $self if defined wantarray;
 }
@@ -1143,32 +1143,32 @@ sub if {
     $a = Geo::Raster->new($a) if defined wantarray;
     croak "usage $a->if($b, $c)" unless defined $c;
     if (ref($c)) {
-	if (blessed($c) and $c->isa('Geo::Raster')) {
-	    ral_grid_if_then_grid($b->{GRID}, $a->{GRID}, $c->{GRID});
-	} elsif (ref($c) eq 'HASH') {
-	    my(@k,@v);
-	    foreach (keys %{$c}) {
-		push @k, int($_);
-		push @v, $c->{$_};
-	    }
-	    ral_grid_zonal_if_then_real($b->{GRID}, $a->{GRID}, \@k, \@v, $#k+1);
-	} else {
-	    croak("usage: $a->if($b, $c)");
-	}
+        if (blessed($c) and $c->isa('Geo::Raster')) {
+            ral_grid_if_then_grid($b->{GRID}, $a->{GRID}, $c->{GRID});
+        } elsif (ref($c) eq 'HASH') {
+            my(@k,@v);
+            foreach (keys %{$c}) {
+                push @k, int($_);
+                push @v, $c->{$_};
+            }
+            ral_grid_zonal_if_then_real($b->{GRID}, $a->{GRID}, \@k, \@v, $#k+1);
+        } else {
+            croak("usage: $a->if($b, $c)");
+        }
     } else {
-	unless (defined $d) {
-	    if (ral_grid_get_datatype($a->{GRID}) == $INTEGER_GRID and $c =~ /^-?\d+$/) {
-		ral_grid_if_then_integer($b->{GRID}, $a->{GRID}, $c);
-	    } else {
-		ral_grid_if_then_real($b->{GRID}, $a->{GRID}, $c);
-	    }
-	} else {
-	    if (ral_grid_get_datatype($a->{GRID}) == $INTEGER_GRID and $c =~ /^-?\d+$/) {
-		ral_grid_if_then_else_integer($b->{GRID}, $a->{GRID}, $c, $d);
-	    } else {
-		ral_grid_if_then_else_real($b->{GRID}, $a->{GRID}, $c, $d);
-	    }
-	}
+        unless (defined $d) {
+            if (ral_grid_get_datatype($a->{GRID}) == $INTEGER_GRID and $c =~ /^-?\d+$/) {
+                ral_grid_if_then_integer($b->{GRID}, $a->{GRID}, $c);
+            } else {
+                ral_grid_if_then_real($b->{GRID}, $a->{GRID}, $c);
+            }
+        } else {
+            if (ral_grid_get_datatype($a->{GRID}) == $INTEGER_GRID and $c =~ /^-?\d+$/) {
+                ral_grid_if_then_else_integer($b->{GRID}, $a->{GRID}, $c, $d);
+            } else {
+                ral_grid_if_then_else_real($b->{GRID}, $a->{GRID}, $c, $d);
+            }
+        }
     }
     return $a if defined wantarray;
 }
@@ -1188,10 +1188,10 @@ sub bufferzone {
     my($self, $z, $w) = @_;
     croak "method usage: bufferzone($z, $w)" unless defined($w);
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_grid_bufferzone($self->{GRID}, $z, $w));
-	return $g;
+        my $g = new Geo::Raster(ral_grid_bufferzone($self->{GRID}, $z, $w));
+        return $g;
     } else {
-	$self->_new_grid(ral_grid_bufferzone($self->{GRID}, $z, $w));
+        $self->_new_grid(ral_grid_bufferzone($self->{GRID}, $z, $w));
     }
 }
 
@@ -1205,10 +1205,10 @@ sub bufferzone {
 sub distances {
     my($self) = @_;
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_grid_distances($self->{GRID}));
-	return $g;
+        my $g = new Geo::Raster(ral_grid_distances($self->{GRID}));
+        return $g;
     } else {
-	$self->_new_grid(ral_grid_distances($self->{GRID}));
+        $self->_new_grid(ral_grid_distances($self->{GRID}));
     }
 }
 
@@ -1225,10 +1225,10 @@ sub distances {
 sub directions {
     my($self) = @_;
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_grid_directions($self->{GRID}));
-	return $g;
+        my $g = new Geo::Raster(ral_grid_directions($self->{GRID}));
+        return $g;
     } else {
-	$self->_new_grid(ral_grid_directions($self->{GRID}));
+        $self->_new_grid(ral_grid_directions($self->{GRID}));
     }
 }
 
@@ -1266,25 +1266,25 @@ sub directions {
 sub clip {
     my $self = shift;
     if (@_ == 4) {
-	my($i1, $j1, $i2, $j2) = @_;
-	if (defined wantarray) {
-	    my $g = new Geo::Raster(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
-	    return $g;
-	} else {
-	    $self->_new_grid(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
-	}
+        my($i1, $j1, $i2, $j2) = @_;
+        if (defined wantarray) {
+            my $g = new Geo::Raster(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
+            return $g;
+        } else {
+            $self->_new_grid(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
+        }
     } else {
-	my $gd = shift;
-	return unless blessed($gd) and $gd->isa('Geo::Raster');
-	my @a = $gd->_attributes;
-	my($i1,$j1) = $self->w2g($a[4],$a[7]);
-	my($i2,$j2) = ($i1+$a[1]-1,$j1+$a[2]-1);
-	if (defined wantarray) {
-	    my $g = new Geo::Raster(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
-	    return $g;
-	} else {
-	    $self->_new_grid(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
-	}
+        my $gd = shift;
+        return unless blessed($gd) and $gd->isa('Geo::Raster');
+        my @a = $gd->_attributes;
+        my($i1,$j1) = $self->w2g($a[4],$a[7]);
+        my($i2,$j2) = ($i1+$a[1]-1,$j1+$a[2]-1);
+        if (defined wantarray) {
+            my $g = new Geo::Raster(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
+            return $g;
+        } else {
+            $self->_new_grid(ral_grid_clip($self->{GRID}, $i1, $j1, $i2, $j2));
+        }
     }
 }
 
@@ -1316,10 +1316,10 @@ sub join {
     my $self = shift;
     my $second = shift;
     if (defined wantarray) {
-	my $g = new Geo::Raster(ral_grid_join($self->{GRID}, $second->{GRID}));
-	return $g;
+        my $g = new Geo::Raster(ral_grid_join($self->{GRID}, $second->{GRID}));
+        return $g;
     } else {
-	$self->_new_grid(ral_grid_join($self->{GRID}, $second->{GRID}));
+        $self->_new_grid(ral_grid_join($self->{GRID}, $second->{GRID}));
     }
 }
 
@@ -1351,17 +1351,17 @@ sub assign {
 sub clip_to {
     my($self, $like) = @_;
     if ($self->{GDAL}) {
-	$self->cache($like);
+        $self->cache($like);
     }
     if (defined wantarray) {
-	my $g = new Geo::Raster(like=>$like, datatype=>ral_grid_get_datatype($self->{GRID}));
-	$g->assign($self);
-	return $g;
+        my $g = new Geo::Raster(like=>$like, datatype=>ral_grid_get_datatype($self->{GRID}));
+        $g->assign($self);
+        return $g;
     } else {
-	my $g = ral_grid_create_like($like->{GRID}, ral_grid_get_datatype($self->{GRID}));
-	ral_grid_pick($g, $self->{GRID});
-	$self->_new_grid($g);
-	delete $self->{GDAL} if $self->{GDAL};
+        my $g = ral_grid_create_like($like->{GRID}, ral_grid_get_datatype($self->{GRID}));
+        ral_grid_pick($g, $self->{GRID});
+        $self->_new_grid($g);
+        delete $self->{GDAL} if $self->{GDAL};
     }
 }
 
@@ -1416,28 +1416,28 @@ sub histogram {
     $bins = 20 unless $bins;
     my $a;
     if (ref($bins)) {
-	$a = ral_grid_histogram($self->{GRID}, $bins, $#$bins+1);
-	return @$a;
+        $a = ral_grid_histogram($self->{GRID}, $bins, $#$bins+1);
+        return @$a;
     } else {
-	my $bins = int($bins);
-	my ($minval,$maxval) = $self->value_range();
-	my @bins;
-	my $i;
-	my $d = ($maxval-$minval)/$bins;
-	$bins[0] = $minval + $d;
-	for $i (1..$bins-2) {
-	    $bins[$i] = $bins[$i-1]+$d;
-	}
-	$bins[$bins-1] = $maxval;
-	my $counts = ral_grid_histogram($self->{GRID}, \@bins, $bins+1);
-	# now, $$counts[$n] should be zero, right? 
-	# (there are no values > maxval)
-	unshift @bins, $minval;
-	my $a = {};
-	for $i (0..$bins-1) {
-	    $a->{($bins[$i]+$bins[$i+1])/2} = $counts->[$i];
-	}
-	return $a;
+        my $bins = int($bins);
+        my ($minval,$maxval) = $self->value_range();
+        my @bins;
+        my $i;
+        my $d = ($maxval-$minval)/$bins;
+        $bins[0] = $minval + $d;
+        for $i (1..$bins-2) {
+            $bins[$i] = $bins[$i-1]+$d;
+        }
+        $bins[$bins-1] = $maxval;
+        my $counts = ral_grid_histogram($self->{GRID}, \@bins, $bins+1);
+        # now, $$counts[$n] should be zero, right? 
+        # (there are no values > maxval)
+        unshift @bins, $minval;
+        my $a = {};
+        for $i (0..$bins-1) {
+            $a->{($bins[$i]+$bins[$i+1])/2} = $counts->[$i];
+        }
+        return $a;
     }
 }
 
@@ -1450,14 +1450,14 @@ sub histogram {
 sub contents {
     my $self = shift;
     if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID) {
-	return ral_grid_contents($self->{GRID});
+        return ral_grid_contents($self->{GRID});
     } else {
-	my $c = $self->array();
-	my %d;
-	for my $c (@$c) {
-	    $d{$c->[2]}++;
-	}
-	return \%d;
+        my $c = $self->array();
+        my %d;
+        for my $c (@$c) {
+            $d{$c->[2]}++;
+        }
+        return \%d;
     }
 }
 
@@ -1482,14 +1482,14 @@ sub function {
     $self = Geo::Raster->new($self) if defined wantarray;
     my $y = $maxY-$cell_size/2;
     for my $i (0..$M-1) {
-	my $x = $minX+$cell_size/2;
-	for my $j (0..$N-1) {	    
-	    my $z = $self->get($i, $j);
-	    my $a = eval $fct;
-	    $self->set($i, $j, $a);
-	    $x += $cell_size;
-	}
-	$y -= $cell_size;
+        my $x = $minX+$cell_size/2;
+        for my $j (0..$N-1) {            
+            my $z = $self->get($i, $j);
+            my $a = eval $fct;
+            $self->set($i, $j, $a);
+            $x += $cell_size;
+        }
+        $y -= $cell_size;
     }
     return $self if defined wantarray;
 }
@@ -1534,78 +1534,78 @@ sub map {
     my $self = shift;
     my @map;
     if (@_ == 1) {
-	if (ref($_[0]) eq 'HASH') {
-	    for (keys %{$_[0]}) {
-		push @map, $_;
-		push @map, $_[0]->{$_};
-	    }
-	} elsif (ref($_[0]) eq 'ARRAY') {
-	    @map = @{$_[0]};
-	} else {
-	    croak "usage map(list) or map({list}), list is a list of pairs of mappings";
-	}
+        if (ref($_[0]) eq 'HASH') {
+            for (keys %{$_[0]}) {
+                push @map, $_;
+                push @map, $_[0]->{$_};
+            }
+        } elsif (ref($_[0]) eq 'ARRAY') {
+            @map = @{$_[0]};
+        } else {
+            croak "usage map(list) or map({list}), list is a list of pairs of mappings";
+        }
     } else {
-	@map = @_;
+        @map = @_;
     }
     my $ext = 0;
     my $to_real = 0;
     my $i;
     for ($i = 0; $i < $#map; $i += 2) {
-	if (ref($map[$i]) eq 'ARRAY' or $map[$i] eq '*') {
-	    $ext = 1;
-	}
-	if ($map[$i+1] =~ /\./ or $map[$i+1] =~ /\,/) {
-	    $ext = 1;
-	    $to_real = 1;
-	}
+        if (ref($map[$i]) eq 'ARRAY' or $map[$i] eq '*') {
+            $ext = 1;
+        }
+        if ($map[$i+1] =~ /\./ or $map[$i+1] =~ /\,/) {
+            $ext = 1;
+            $to_real = 1;
+        }
     }  
     if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID and $to_real) {
-	my $grid = ral_grid_create_copy($self->{GRID}, $REAL_GRID);
-	if (defined wantarray) {
-	    $self = new Geo::Raster $grid;
-	} else {
-	    $self->_new_grid($grid);
-	}
+        my $grid = ral_grid_create_copy($self->{GRID}, $REAL_GRID);
+        if (defined wantarray) {
+            $self = new Geo::Raster $grid;
+        } else {
+            $self->_new_grid($grid);
+        }
     } else {
-	if (defined wantarray) {
-	    $self = new Geo::Raster $self;
-	}
+        if (defined wantarray) {
+            $self = new Geo::Raster $self;
+        }
     }
     if ($ext) {
-	my %map;
-	my $default;
-	my(@source_min, @source_max, @destiny);
-	for ($i = 0; $i < $#map; $i += 2) {
-	    if ($map[$i] eq '*') {
-		$default = $map[$i+1];
-	    } elsif (ref($map[$i]) eq 'ARRAY') {
-		$map{$map[$i]->[0]}{max} = $map[$i]->[1];
-		$map{$map[$i]->[0]}{to} = $map[$i+1];
-	    } else {
-		$map{$map[$i]}{max} = $map[$i]+1;
-		$map{$map[$i]}{to} = $map[$i+1];
-	    }
-	}
-	for my $min (sort {$a<=>$b} keys %map) {
-	    push @source_min, $min;
-	    push @source_max, $map{$min}{max};
-	    push @destiny, $map{$min}{to};
-	}
-	my $n = @destiny;
-	if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID) {
-	    ral_grid_map_integer_grid($self->{GRID}, \@source_min, \@source_max, \@destiny, $n, $default);
-	} else {
-	    ral_grid_map_real_grid($self->{GRID}, \@source_min, \@source_max, \@destiny, $n, $default);
-	}
+        my %map;
+        my $default;
+        my(@source_min, @source_max, @destiny);
+        for ($i = 0; $i < $#map; $i += 2) {
+            if ($map[$i] eq '*') {
+                $default = $map[$i+1];
+            } elsif (ref($map[$i]) eq 'ARRAY') {
+                $map{$map[$i]->[0]}{max} = $map[$i]->[1];
+                $map{$map[$i]->[0]}{to} = $map[$i+1];
+            } else {
+                $map{$map[$i]}{max} = $map[$i]+1;
+                $map{$map[$i]}{to} = $map[$i+1];
+            }
+        }
+        for my $min (sort {$a<=>$b} keys %map) {
+            push @source_min, $min;
+            push @source_max, $map{$min}{max};
+            push @destiny, $map{$min}{to};
+        }
+        my $n = @destiny;
+        if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID) {
+            ral_grid_map_integer_grid($self->{GRID}, \@source_min, \@source_max, \@destiny, $n, $default);
+        } else {
+            ral_grid_map_real_grid($self->{GRID}, \@source_min, \@source_max, \@destiny, $n, $default);
+        }
     } else {
-	my %map = @map;
-	my(@source, @destiny);
-	for (sort {$a<=>$b} keys %map) {
-	    push @source, $_;
-	    push @destiny, $map{$_};
-	}
-	my $n = @source;
-	ral_grid_map($self->{GRID}, \@source, \@destiny, $n);
+        my %map = @map;
+        my(@source, @destiny);
+        for (sort {$a<=>$b} keys %map) {
+            push @source, $_;
+            push @destiny, $map{$_};
+        }
+        my $n = @source;
+        ral_grid_map($self->{GRID}, \@source, \@destiny, $n);
     }
     return $self if defined wantarray;
 }

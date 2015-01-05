@@ -31,10 +31,10 @@ sub fit_surface {
     my $a = ral_dem_fit_surface($dem->{GRID}, $z_factor);
     my @ret;
     if ($a and @$a) {
-	for my $a (@$a) {
-	    my $b = Geo::Raster->new($a);
-	    push @ret, $b;
-	}
+        for my $a (@$a) {
+            my $b = Geo::Raster->new($a);
+            push @ret, $b;
+        }
     }
     return @ret;
 }
@@ -51,9 +51,9 @@ sub fit_surface {
 sub aspect {
     my $self = shift;
     if (defined wantarray) {
-	return Geo::Raster->new(ral_dem_aspect($self->{GRID}));
+        return Geo::Raster->new(ral_dem_aspect($self->{GRID}));
     } else {
-	$self->_new_grid(ral_dem_aspect($self->{GRID}));
+        $self->_new_grid(ral_dem_aspect($self->{GRID}));
     }
 }
 
@@ -72,9 +72,9 @@ sub slope {
     my $z_factor = shift;
     $z_factor = 1 unless $z_factor;
     if (defined wantarray) {
-	return Geo::Raster->new(ral_dem_slope($self->{GRID}, $z_factor));
+        return Geo::Raster->new(ral_dem_slope($self->{GRID}, $z_factor));
     } else {
-	$self->_new_grid(ral_dem_slope($self->{GRID}, $z_factor));
+        $self->_new_grid(ral_dem_slope($self->{GRID}, $z_factor));
     }
 }
 
@@ -110,42 +110,42 @@ sub fdg {
     $opt{method} = 'D8' unless $opt{method};
     my $method;
     if ($opt{method} eq 'D8') {
-	$method = 1;
+        $method = 1;
     } elsif ($opt{method} eq 'Rho8') {
-	$method = 2;
+        $method = 2;
     } elsif ($opt{method} eq 'many') {
-	$method = 3;
+        $method = 3;
     } else {
-	croak "fdg: $opt{method}: unsupported method";
+        croak "fdg: $opt{method}: unsupported method";
     }
     my $fdg = Geo::Raster->new(ral_dem_fdg($dem->{GRID}, $method));
     
     if ($opt{drain_all}) {
-	my $step = 1;
-	my $pits_last_time = -1;
-	my $flats_last_time = -1;
-	while (1) {
-	    $fdg->drain_flat_areas($dem, method=>'m', quiet=>1);
-	    $fdg->drain_flat_areas($dem, method=>'o', quiet=>1);
-	    my $c = $fdg->contents();
-	    my $pits = $$c{0} || 0;
-	    my $flats = $$c{-1} || 0;
-	    print "drain_all: iteration step $step: $pits pits and $flats flat cells\n" unless $opt{quiet};
-	    last if ($pits == 0 and $flats == 0);
-	    my $n = ral_fdg_drain_depressions($fdg->{GRID}, $dem->{GRID});
-	    print "drain_all: iteration step $step: $n depressions fixed\n" unless $opt{quiet};
-	    croak "there is no progress" if ($pits_last_time == $pits and $flats_last_time == $flats);
-	    $pits_last_time = $pits;
-	    $flats_last_time = $flats;	    
-	    $step++;
-	}
+        my $step = 1;
+        my $pits_last_time = -1;
+        my $flats_last_time = -1;
+        while (1) {
+            $fdg->drain_flat_areas($dem, method=>'m', quiet=>1);
+            $fdg->drain_flat_areas($dem, method=>'o', quiet=>1);
+            my $c = $fdg->contents();
+            my $pits = $$c{0} || 0;
+            my $flats = $$c{-1} || 0;
+            print "drain_all: iteration step $step: $pits pits and $flats flat cells\n" unless $opt{quiet};
+            last if ($pits == 0 and $flats == 0);
+            my $n = ral_fdg_drain_depressions($fdg->{GRID}, $dem->{GRID});
+            print "drain_all: iteration step $step: $n depressions fixed\n" unless $opt{quiet};
+            croak "there is no progress" if ($pits_last_time == $pits and $flats_last_time == $flats);
+            $pits_last_time = $pits;
+            $flats_last_time = $flats;            
+            $step++;
+        }
     }
     
     if (defined wantarray) {
-	return $fdg;
+        return $fdg;
     } else {
-	$dem->_new_grid($fdg->{GRID});
-	delete $fdg->{GRID};
+        $dem->_new_grid($fdg->{GRID});
+        delete $fdg->{GRID};
     }
 }
 
@@ -155,11 +155,11 @@ sub many2ds {
     my($fdg) = @_;
     my %map;
     for my $i (1..255) {
-	my $c = 0;
-	for my $j (0..7) {
-	    $c++ if $i & 1 << $j;
-	}
-	$map{$i} = $c;
+        my $c = 0;
+        for my $j (0..7) {
+            $c++ if $i & 1 << $j;
+        }
+        $map{$i} = $c;
     }
     $fdg->map(\%map);
 }
@@ -188,7 +188,7 @@ sub movecell {
       croak "movecell: $dir: bad direction";
   }
     if ($fdg) {
-	return if ($i < 0 or $j < 0 or $i >= ral_grid_get_height($fdg->{GRID}) or $j >= ral_grid_get_width($fdg->{GRID}));
+        return if ($i < 0 or $j < 0 or $i >= ral_grid_get_height($fdg->{GRID}) or $j >= ral_grid_get_width($fdg->{GRID}));
     }
     return ($i, $j);
 }
@@ -245,13 +245,13 @@ sub drain_flat_areas {
     $fdg = Geo::Raster->new($fdg) if defined wantarray;
     $opt{method} = 'one pour point' unless $opt{method};
     if ($opt{method} =~ /^m/) {
-	my $n = ral_fdg_drain_flat_areas1($fdg->{GRID}, $dem->{GRID});
-	print "drain_flat_areas (multiple pour points): $n flat cells drained\n" unless $opt{quiet};
+        my $n = ral_fdg_drain_flat_areas1($fdg->{GRID}, $dem->{GRID});
+        print "drain_flat_areas (multiple pour points): $n flat cells drained\n" unless $opt{quiet};
     } elsif ($opt{method} =~ /^o/) {
-	my $n = ral_fdg_drain_flat_areas2($fdg->{GRID}, $dem->{GRID});
-	print "drain_flat_areas (one pour point): $n flat areas drained\n" unless $opt{quiet};
+        my $n = ral_fdg_drain_flat_areas2($fdg->{GRID}, $dem->{GRID});
+        print "drain_flat_areas (one pour point): $n flat areas drained\n" unless $opt{quiet};
     } else {
-	croak "drain_flat_areas: $opt{method}: unknown method";
+        croak "drain_flat_areas: $opt{method}: unknown method";
     }
     return $fdg if defined wantarray;
 }
@@ -297,9 +297,9 @@ sub ucg {
     my($dem) = @_;
     my $ucg = ral_dem_ucg($dem->{GRID});
     if (defined wantarray) {
-	return Geo::Raster->new($ucg);
+        return Geo::Raster->new($ucg);
     } else {
-	$dem->_new_grid($ucg);
+        $dem->_new_grid($ucg);
     }
 }
 
@@ -322,20 +322,20 @@ sub upstream {
     my $streams;
     my @cell;
     if (@_ > 2) {
-	($streams,@cell) = @_;
+        ($streams,@cell) = @_;
     } else {
-	@cell = @_;
+        @cell = @_;
     }
     my @up;
     my $d;
     for $d (1..8) {
-	my @test = $fdg->movecell(@cell, $d);
-	next unless @test;
-	my $u = $fdg->get(@test);
-	next if $streams and !($streams->get(@test));
-	if ($u == ($d - 4 <= 0 ? $d + 4 : $d - 4)) {
-	    push @up, $d;
-	}
+        my @test = $fdg->movecell(@cell, $d);
+        next unless @test;
+        my $u = $fdg->get(@test);
+        next if $streams and !($streams->get(@test));
+        if ($u == ($d - 4 <= 0 ? $d + 4 : $d - 4)) {
+            push @up, $d;
+        }
     }
     return @up;
 }
@@ -431,38 +431,38 @@ sub fill_depressions {
     $opt{iterative} = 1 unless exists $opt{iterative} and CORE::not $opt{iterative};
     $opt{fdg} = $opt{FDG} if exists $opt{FDG};
     if (CORE::not $opt{iterative}) {
-	croak "fill_depressions: FDG needed if not iterative" unless $opt{fdg};
-	$dem = Geo::Raster->new($dem) if defined wantarray;
-	ral_dem_fill_depressions($dem->{GRID}, $opt{fdg}->{GRID});
-	return $dem if defined wantarray;
-	return;
+        croak "fill_depressions: FDG needed if not iterative" unless $opt{fdg};
+        $dem = Geo::Raster->new($dem) if defined wantarray;
+        ral_dem_fill_depressions($dem->{GRID}, $opt{fdg}->{GRID});
+        return $dem if defined wantarray;
+        return;
     }
     if ($opt{fdg}) {
-	$dem = Geo::Raster->new($dem) if defined wantarray;
-	ral_dem_fill_depressions($dem->{GRID}, $opt{fdg}->{GRID});
-	return $dem if defined wantarray;
-	return;
+        $dem = Geo::Raster->new($dem) if defined wantarray;
+        ral_dem_fill_depressions($dem->{GRID}, $opt{fdg}->{GRID});
+        return $dem if defined wantarray;
+        return;
     } else {
-	my $step = 1;
-	my $pits_last_time = -1;
-	my $flats_last_time = -1;
-	while (1) {
-	    my $fdg = $dem->fdg(method=>'D8', quiet=>1);
-	    $fdg->drain_flat_areas($dem, method=>'m', quiet=>1);
-	    $fdg->drain_flat_areas($dem, method=>'o', quiet=>1);
-	    my $c = $fdg->contents();
-	    my $pits = $$c{0} || 0;
-	    my $flats = $$c{-1} || 0;
-	    print "fill_depressions: iteration step $step: $pits pits and $flats flat cells\n" unless $opt{quiet};
-	    return $fdg if ($pits == 0 and $flats == 0);
-	    croak "there is no progress" if ($pits_last_time == $pits and $flats_last_time == $flats);
-	    my $n = ral_dem_fill_depressions($dem->{GRID}, $fdg->{GRID});
-	    print "fill_depressions: iteration step $step: $n depressions filled\n" unless $opt{quiet};
-	    $pits_last_time = $pits;
-	    $flats_last_time = $flats;
-	    $step++;
-	    Gtk2->main_iteration while Gtk2->events_pending;
-	}
+        my $step = 1;
+        my $pits_last_time = -1;
+        my $flats_last_time = -1;
+        while (1) {
+            my $fdg = $dem->fdg(method=>'D8', quiet=>1);
+            $fdg->drain_flat_areas($dem, method=>'m', quiet=>1);
+            $fdg->drain_flat_areas($dem, method=>'o', quiet=>1);
+            my $c = $fdg->contents();
+            my $pits = $$c{0} || 0;
+            my $flats = $$c{-1} || 0;
+            print "fill_depressions: iteration step $step: $pits pits and $flats flat cells\n" unless $opt{quiet};
+            return $fdg if ($pits == 0 and $flats == 0);
+            croak "there is no progress" if ($pits_last_time == $pits and $flats_last_time == $flats);
+            my $n = ral_dem_fill_depressions($dem->{GRID}, $fdg->{GRID});
+            print "fill_depressions: iteration step $step: $n depressions filled\n" unless $opt{quiet};
+            $pits_last_time = $pits;
+            $flats_last_time = $flats;
+            $step++;
+            Gtk2->main_iteration while Gtk2->events_pending;
+        }
     }
 }
 
@@ -514,35 +514,35 @@ sub breach {
     $opt{limit} = 0 unless defined($opt{limit});
     $opt{iterative} = 1 unless exists $opt{iterative} and CORE::not $opt{iterative};
     if (CORE::not $opt{iterative}) {
-	croak "breach: FDG needed if not iterative" unless $opt{fdg};
-	$dem = Geo::Raster->new($dem) if defined wantarray;
-	ral_dem_breach($dem->{GRID}, $opt{fdg}->{GRID}, $opt{limit});
-	return $dem if defined wantarray;
-	return;
+        croak "breach: FDG needed if not iterative" unless $opt{fdg};
+        $dem = Geo::Raster->new($dem) if defined wantarray;
+        ral_dem_breach($dem->{GRID}, $opt{fdg}->{GRID}, $opt{limit});
+        return $dem if defined wantarray;
+        return;
     }
     if ($opt{fdg}) {
-	$dem = Geo::Raster->new($dem) if defined wantarray;
-	return ral_dem_breach($dem->{GRID}, $opt{fdg}->{GRID}, $opt{limit});
+        $dem = Geo::Raster->new($dem) if defined wantarray;
+        return ral_dem_breach($dem->{GRID}, $opt{fdg}->{GRID}, $opt{limit});
     } else {
-	my $step = 1;
-	my $pits_last_time = -1;
-	my $flats_last_time = -1;
-	while (1) {
-	    my $fdg = $dem->fdg(method=>'D8', quiet=>1);
-	    $fdg->drain_flat_areas($dem, method=>'m', quiet=>1);
-	    $fdg->drain_flat_areas($dem, method=>'o', quiet=>1);
-	    my $c = $fdg->contents();
-	    my $pits = $$c{0} || 0;
-	    my $flats = $$c{-1} || 0;
-	    print "breach: iteration step $step: $pits pits and $flats flat cells\n" unless $opt{quiet};
-	    return $fdg if ($pits == 0 and $flats == 0);
-	    return $fdg if ($pits_last_time == $pits and $flats_last_time == $flats);
-	    my $n = ral_dem_breach($dem->{GRID}, $fdg->{GRID}, $opt{limit});
-	    print "breach: iteration step $step: $n depressions filled\n" unless $opt{quiet};
-	    $pits_last_time = $pits;
-	    $flats_last_time = $flats;
-	    $step++;
-	}
+        my $step = 1;
+        my $pits_last_time = -1;
+        my $flats_last_time = -1;
+        while (1) {
+            my $fdg = $dem->fdg(method=>'D8', quiet=>1);
+            $fdg->drain_flat_areas($dem, method=>'m', quiet=>1);
+            $fdg->drain_flat_areas($dem, method=>'o', quiet=>1);
+            my $c = $fdg->contents();
+            my $pits = $$c{0} || 0;
+            my $flats = $$c{-1} || 0;
+            print "breach: iteration step $step: $pits pits and $flats flat cells\n" unless $opt{quiet};
+            return $fdg if ($pits == 0 and $flats == 0);
+            return $fdg if ($pits_last_time == $pits and $flats_last_time == $flats);
+            my $n = ral_dem_breach($dem->{GRID}, $fdg->{GRID}, $opt{limit});
+            print "breach: iteration step $step: $n depressions filled\n" unless $opt{quiet};
+            $pits_last_time = $pits;
+            $flats_last_time = $flats;
+            $step++;
+        }
     }
 }
 
@@ -561,9 +561,9 @@ sub path {
     my($fdg, $i, $j, $stop) = @_;
     my $g = ral_fdg_path($fdg->{GRID}, $i, $j, $stop ? $stop->{GRID} : undef);
     if (defined wantarray) {
-	return Geo::Raster->new($g);
+        return Geo::Raster->new($g);
     } else {
-	$fdg->_new_grid($g);
+        $fdg->_new_grid($g);
     }
 }
 
@@ -584,9 +584,9 @@ sub path_length {
     my($fdg, $stop, $op) = @_;
     my $g = ral_fdg_path_length($fdg->{GRID}, $stop ? $stop->{GRID} : undef, $op ? $op->{GRID} : undef);
     if (defined wantarray) {
-	return new Geo::Raster $g;
+        return new Geo::Raster $g;
     } else {
-	$fdg->_new_grid($g);
+        $fdg->_new_grid($g);
     }
 }
 
@@ -606,9 +606,9 @@ sub path_sum {
     my($fdg, $stop, $op) = @_;
     my $g = ral_fdg_path_sum($fdg->{GRID}, $stop ? $stop->{GRID} : undef, $op->{GRID});
     if (defined wantarray) {
-	return new Geo::Raster $g;
+        return new Geo::Raster $g;
     } else {
-	$fdg->_new_grid($g);
+        $fdg->_new_grid($g);
     }
 }
 
@@ -631,12 +631,12 @@ sub upslope_count {
     my $include_self = ref $a ? $b : $a;
     $include_self = 1 unless defined $include_self;
     my $g = $op ? 
-	ral_fdg_upslope_count($fdg->{GRID}, $op->{GRID}, $include_self) : 
-	ral_fdg_upslope_count_without_op($fdg->{GRID}, $include_self);
+        ral_fdg_upslope_count($fdg->{GRID}, $op->{GRID}, $include_self) : 
+        ral_fdg_upslope_count_without_op($fdg->{GRID}, $include_self);
     if (defined wantarray) {
-	return new Geo::Raster $g;
+        return new Geo::Raster $g;
     } else {
-	$fdg->_new_grid($g);
+        $fdg->_new_grid($g);
     }
 }
 
@@ -657,9 +657,9 @@ sub upslope_sum {
     $b = 1 unless defined $b;
     my $g = ral_fdg_upslope_sum($fdg->{GRID}, $a->{GRID}, $b);
     if (defined wantarray) {
-	return Geo::Raster->new($g);
+        return Geo::Raster->new($g);
     } else {
-	$fdg->_new_grid($g);
+        $fdg->_new_grid($g);
     }
 }
 
@@ -702,14 +702,14 @@ sub catchment {
     my ($M, $N) = $fdg->size();
     my ($j, $m, $catchment);
     if (blessed($i) and $i->isa('Geo::Raster')) {
-	$catchment = $i;
-	$i = shift;
-	$j = shift;
-	$m = shift;
+        $catchment = $i;
+        $i = shift;
+        $j = shift;
+        $m = shift;
     } else {
-	$catchment = new Geo::Raster(like=>$fdg);
-	$j = shift;
-	$m = shift;
+        $catchment = new Geo::Raster(like=>$fdg);
+        $j = shift;
+        $m = shift;
     }
     $m = 1 unless defined($m);
     my $size = ral_fdg_catchment($fdg->{GRID}, $catchment->{GRID}, $i, $j, $m);
@@ -739,8 +739,8 @@ sub prune {
     my $lakes;
     my $min_length = shift;
     if (blessed($min_length) and $min_length->isa('Geo::Raster')) {
-	$lakes = $min_length;
-	$min_length = shift;
+        $lakes = $min_length;
+        $min_length = shift;
     }
     my $i = shift;
     my $j = shift;
@@ -748,9 +748,9 @@ sub prune {
     $streams = Geo::Raster->new($streams) if defined wantarray;
     $i = -1 unless defined $i;
     if ($lakes) {
-	ral_streams_prune($streams->{GRID}, $fdg->{GRID}, $lakes->{GRID}, $i, $j, $min_length);
+        ral_streams_prune($streams->{GRID}, $fdg->{GRID}, $lakes->{GRID}, $i, $j, $min_length);
     } else {
-	ral_streams_prune_without_lakes($streams->{GRID}, $fdg->{GRID}, $i, $j, $min_length);
+        ral_streams_prune_without_lakes($streams->{GRID}, $fdg->{GRID}, $i, $j, $min_length);
     }
     return $streams if defined wantarray;
 }
@@ -774,8 +774,8 @@ sub number_streams {
     my $lakes;
     my $i = shift;
     if (blessed($i) and $i->isa('Geo::Raster')) {
-	$lakes = $i;
-	$i = shift;
+        $lakes = $i;
+        $i = shift;
     }
     my $j = shift;
     my $sid = shift;
@@ -784,8 +784,8 @@ sub number_streams {
     $i = -1 unless defined $i;
     ral_streams_number($streams->{GRID}, $fdg->{GRID}, $i, $j, $sid);
     if ($lakes) {
-	$sid = $streams->max() + 1;
-	ral_streams_break($streams->{GRID}, $fdg->{GRID}, $lakes->{GRID}, $sid);
+        $sid = $streams->max() + 1;
+        ral_streams_break($streams->{GRID}, $fdg->{GRID}, $lakes->{GRID}, $sid);
     }
     return $streams if defined wantarray;
 }
@@ -820,30 +820,30 @@ sub subcatchments {
     my $lakes;
     my $i = shift;
     if (blessed($i) and $i->isa('Geo::Raster')) {
-	$lakes = $i;
-	$i = undef;
+        $lakes = $i;
+        $i = undef;
     }
     my $j;
     my $headwaters;
     if (@_ == 3) {
-	($i, $j, $headwaters) = @_;
+        ($i, $j, $headwaters) = @_;
     } else {
-	($headwaters) = @_;
+        ($headwaters) = @_;
     }
     $headwaters = 0 unless defined $headwaters;
     unless ($lakes) {
-	$lakes = Geo::Raster->new(like=>$streams);
-	$lakes->set(0);
+        $lakes = Geo::Raster->new(like=>$streams);
+        $lakes->set(0);
     }
     my $subs = Geo::Raster->new(like=>$streams);
     unless (defined $i) {
-	$i = -1;
-	$j = -1;
+        $i = -1;
+        $j = -1;
     }
     my $r = ral_catchment_create($subs->{GRID}, 
-				 $streams->{GRID}, 
-				 $fdg->{GRID}, 
-				 $lakes->{GRID}, $i, $j, $headwaters);
+                                 $streams->{GRID}, 
+                                 $fdg->{GRID}, 
+                                 $lakes->{GRID}, $i, $j, $headwaters);
     
     # drainage structure:
     # head -> stream (if exist)<
@@ -854,32 +854,32 @@ sub subcatchments {
     my %ds;
     
     for my $key (keys %{$r}) {
-	($i, $j) = split (/,/, $key);
-	my($i_down, $j_down) = split (/,/, $r->{$key});
-	my $sub = $subs->get($i, $j);
-	my $stream = $streams->get($i, $j);
-	next unless defined $stream;
-	my $lake = $lakes->get($i, $j);
-	my $sub_down = $subs->get($i_down, $j_down);
-	my $stream_down = $streams->get($i_down, $j_down);
-	next unless defined $stream_down;
-	my $lake_down = $lakes->get($i_down, $j_down);
-	if (!defined($lake) or $lake <= 0) {
-	    if (defined($lake_down) and $lake_down > 0) {
-		$ds{"sub $sub $i $j"} = "stream $stream";
-	    } elsif ($stream != $stream_down or ($i == $i_down and $j == $j_down)) {
-		$ds{"sub $sub $i $j"} = "stream $stream";
-		$ds{"stream $stream $i $j"} = "stream $stream_down";
-	    } else {
-		$ds{"head $sub $i $j"} = "stream $stream";
-	    }
-	} else {
-	    $ds{"sub $sub $i $j"} = "lake $lake";
-	    $ds{"lake $lake $i $j"} = "stream $stream_down";
-	}
-	if (defined($lake_down) and $lake_down > 0) {
-	    $ds{"stream $stream $i $j"} = "lake $lake_down";
-	}
+        ($i, $j) = split (/,/, $key);
+        my($i_down, $j_down) = split (/,/, $r->{$key});
+        my $sub = $subs->get($i, $j);
+        my $stream = $streams->get($i, $j);
+        next unless defined $stream;
+        my $lake = $lakes->get($i, $j);
+        my $sub_down = $subs->get($i_down, $j_down);
+        my $stream_down = $streams->get($i_down, $j_down);
+        next unless defined $stream_down;
+        my $lake_down = $lakes->get($i_down, $j_down);
+        if (!defined($lake) or $lake <= 0) {
+            if (defined($lake_down) and $lake_down > 0) {
+                $ds{"sub $sub $i $j"} = "stream $stream";
+            } elsif ($stream != $stream_down or ($i == $i_down and $j == $j_down)) {
+                $ds{"sub $sub $i $j"} = "stream $stream";
+                $ds{"stream $stream $i $j"} = "stream $stream_down";
+            } else {
+                $ds{"head $sub $i $j"} = "stream $stream";
+            }
+        } else {
+            $ds{"sub $sub $i $j"} = "lake $lake";
+            $ds{"lake $lake $i $j"} = "stream $stream_down";
+        }
+        if (defined($lake_down) and $lake_down > 0) {
+            $ds{"stream $stream $i $j"} = "lake $lake_down";
+        }
     }
     return wantarray ? ($subs, \%ds) : $subs;
 }
@@ -908,15 +908,15 @@ sub vectorize_catchment {
     my ($minX, $minY, $maxX, $maxY) = $self->world();
 
     my %schema = ( Fields => [
-		       { Name => 'element', Type => 'Integer' },
-		       { Name => 'type', Type => 'String' },
-		       { Name => 'down', Type => 'Integer' },
-		       { Name => 'type_down', Type => 'String' },
-		   ]);
+                       { Name => 'element', Type => 'Integer' },
+                       { Name => 'type', Type => 'String' },
+                       { Name => 'down', Type => 'Integer' },
+                       { Name => 'type_down', Type => 'String' },
+                   ]);
     my $catchments = $self->polygonize(%params, 
-				       create => 'subcatchments',
-				       schema => \%schema, 
-				       pixel_value_field => 'element');
+                                       create => 'subcatchments',
+                                       schema => \%schema, 
+                                       pixel_value_field => 'element');
 
 
     my %subs;
@@ -925,69 +925,69 @@ sub vectorize_catchment {
 
     # topology, keys = type id i j, values = type id
     for my $key (keys %$topology) {
-	if ($key =~ /^(\w+) (\d+) \d+ \d+/) {
-	    my $type = $1;
-	    my $element = $2;
-	    if ($topology->{$key} =~ /^(\w+) (\d+)/) {
-		if ($type eq 'stream') {
-		    $streams{$element}{type_down} = $1;
-		    $streams{$element}{down} = $2;
-		} elsif ($type eq 'lake') {
-		    $lakes{$element}{type_down} = $1;
-		    $lakes{$element}{down} = $2;
-		} else {
-		    #print STDERR "subs $type $1 $2\n";
-		    $subs{$element}{type} = $type;
-		    $subs{$element}{type_down} = $1;
-		    $subs{$element}{down} = $2;
-		}
-	    }
-	}
+        if ($key =~ /^(\w+) (\d+) \d+ \d+/) {
+            my $type = $1;
+            my $element = $2;
+            if ($topology->{$key} =~ /^(\w+) (\d+)/) {
+                if ($type eq 'stream') {
+                    $streams{$element}{type_down} = $1;
+                    $streams{$element}{down} = $2;
+                } elsif ($type eq 'lake') {
+                    $lakes{$element}{type_down} = $1;
+                    $lakes{$element}{down} = $2;
+                } else {
+                    #print STDERR "subs $type $1 $2\n";
+                    $subs{$element}{type} = $type;
+                    $subs{$element}{type_down} = $1;
+                    $subs{$element}{down} = $2;
+                }
+            }
+        }
     }
 
     for my $catchment (@{$catchments->features}) {
 
-	# add subcatchment and lake polygons
+        # add subcatchment and lake polygons
 
-	my $element = $catchment->GetField('element');
+        my $element = $catchment->GetField('element');
 
-	#print STDERR "$subs{$element} $subs{$element}{type}\n";
-	
-	next unless $subs{$element};
-	
-	$catchment->SetField('type', $subs{$element}{type});
-	$catchment->SetField('down', $subs{$element}{down});
-	$catchment->SetField('type_down', $subs{$element}{type_down});
-	$catchments->feature($catchment->GetFID, $catchment);
+        #print STDERR "$subs{$element} $subs{$element}{type}\n";
+        
+        next unless $subs{$element};
+        
+        $catchment->SetField('type', $subs{$element}{type});
+        $catchment->SetField('down', $subs{$element}{down});
+        $catchment->SetField('type_down', $subs{$element}{type_down});
+        $catchments->feature($catchment->GetFID, $catchment);
     }
 
     %schema = ( Fields => [
-		    { Name => 'element', Type => 'Integer' },
-		    { Name => 'down', Type => 'Integer' },
-		    { Name => 'type_down', Type => 'String' },
-		]);
+                    { Name => 'element', Type => 'Integer' },
+                    { Name => 'down', Type => 'Integer' },
+                    { Name => 'type_down', Type => 'String' },
+                ]);
     my $tree = Geo::Vector->new(%params,
-				create => 'stream_segments',
-				schema => \%schema);
+                                create => 'stream_segments',
+                                schema => \%schema);
 
     my %done;
     my($M, $N) = $streams->size;
     for my $i (0..$M-1) {
-	for my $j (0..$N-1) {
-	    my $s = $streams->get($i, $j);
-	    next unless defined($s);
-	    next if $done{$s};
-	    next unless $streams{$s};
-	    print "segment $s\n";
-	    Gtk2->main_iteration while Gtk2->events_pending;
-	    my $segment = $streams->segment($fdg, $i, $j);
-	    $tree->feature({ Geometry => $segment, 
-			     element => $s, 
-			     down => $streams{$s}{down}, 
-			     type_down => $streams{$s}{type_down}
-			   });
-	    $done{$s} = 1;
-	}
+        for my $j (0..$N-1) {
+            my $s = $streams->get($i, $j);
+            next unless defined($s);
+            next if $done{$s};
+            next unless $streams{$s};
+            print "segment $s\n";
+            Gtk2->main_iteration while Gtk2->events_pending;
+            my $segment = $streams->segment($fdg, $i, $j);
+            $tree->feature({ Geometry => $segment, 
+                             element => $s, 
+                             down => $streams{$s}{down}, 
+                             type_down => $streams{$s}{type_down}
+                           });
+            $done{$s} = 1;
+        }
     }
     return($catchments, $tree);
 }
@@ -997,50 +997,50 @@ sub segment {
     my $s = $self->get($i, $j);
     # upstream until not s, Note: assuming a clean segment
     while (1) {
-	$i--;
-	my $x = $fdg->get($i, $j);
-	my $s2 = $self->get($i, $j);
-	next if defined($x) and $x == 5 and defined($s2) and $s2 == $s;
-	$j++;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 6 and defined($s2) and $s2 == $s;
-	$i++;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 7 and defined($s2) and $s2 == $s;
-	$i++;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 8 and defined($s2) and $s2 == $s;
-	$j--;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 1 and defined($s2) and $s2 == $s;
-	$j--;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 2 and defined($s2) and $s2 == $s;
-	$i--;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 3 and defined($s2) and $s2 == $s;
-	$i--;
-	$x = $fdg->get($i, $j);
-	$s2 = $self->get($i, $j);
-	next if defined($x) and $x == 4 and defined($s2) and $s2 == $s;
-	$i++;
-	$j++;
-	last;
+        $i--;
+        my $x = $fdg->get($i, $j);
+        my $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 5 and defined($s2) and $s2 == $s;
+        $j++;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 6 and defined($s2) and $s2 == $s;
+        $i++;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 7 and defined($s2) and $s2 == $s;
+        $i++;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 8 and defined($s2) and $s2 == $s;
+        $j--;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 1 and defined($s2) and $s2 == $s;
+        $j--;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 2 and defined($s2) and $s2 == $s;
+        $i--;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 3 and defined($s2) and $s2 == $s;
+        $i--;
+        $x = $fdg->get($i, $j);
+        $s2 = $self->get($i, $j);
+        next if defined($x) and $x == 4 and defined($s2) and $s2 == $s;
+        $i++;
+        $j++;
+        last;
     }
     # downstream until not s, create the segment
     my $segment = Geo::OGC::LineString->new;
     while (1) {
-	$segment->AddPoint(Geo::OGC::Point->new($self->g2w($i, $j)));
-	my $x = $self->get($i, $j);
-	last if !defined($x) or $x != $s;
-	($i, $j) = $fdg->downstream($i, $j);
-	last unless defined $i;
+        $segment->AddPoint(Geo::OGC::Point->new($self->g2w($i, $j)));
+        my $x = $self->get($i, $j);
+        last if !defined($x) or $x != $s;
+        ($i, $j) = $fdg->downstream($i, $j);
+        last unless defined $i;
     }
     return $segment;
 }
@@ -1067,9 +1067,9 @@ sub route {
     $r = 1 unless defined $r;
     croak ("usage: $water->route($dem, [$fdg,] $k, $r)") unless $k and ref($k);
     if ($fdg) {
-	return Geo::Raster->new(ral_water_route($water->{GRID}, $dem->{GRID}, $fdg->{GRID}, $k->{GRID}, $r));
+        return Geo::Raster->new(ral_water_route($water->{GRID}, $dem->{GRID}, $fdg->{GRID}, $k->{GRID}, $r));
     } else {
-	return Geo::Raster->new(ral_water_route2($water->{GRID}, $dem->{GRID}, $k->{GRID}, $r));
+        return Geo::Raster->new(ral_water_route2($water->{GRID}, $dem->{GRID}, $k->{GRID}, $r));
     }
 }
 

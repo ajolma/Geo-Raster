@@ -46,7 +46,7 @@ sub new {
     my $filename = $params{filename};
     my $bands = $dataset->{RasterCount};
     for my $band (1..$bands) {
-	my $layer = Geo::Raster::Layer->new(dataset => $dataset, 
+        my $layer = Geo::Raster::Layer->new(dataset => $dataset, 
                                             filename => $filename, 
                                             band => $band, 
                                             name => $params{name}.' (Band '.$band.')');
@@ -98,41 +98,41 @@ sub menu_items {
         my $item = 'Band '.($i+1);
         push @symbol_submenus, $item;
         push @symbol_submenus, sub {
-	    my($self, $gui) = @{$_[1]};
-	    $self->{layers}[$i]->open_symbols_dialog($gui);
-	};
+            my($self, $gui) = @{$_[1]};
+            $self->{layers}[$i]->open_symbols_dialog($gui);
+        };
         push @colors_submenus, $item;
         push @colors_submenus, sub {
-	    my($self, $gui) = @{$_[1]};
-	    $self->{layers}[$i]->open_colors_dialog($gui);
-	};
+            my($self, $gui) = @{$_[1]};
+            $self->{layers}[$i]->open_colors_dialog($gui);
+        };
         push @labeling_submenus, $item;
         push @labeling_submenus, sub {
-	    my($self, $gui) = @{$_[1]};
-	    $self->{layers}[$i]->open_labeling_dialog($gui);
-	};
+            my($self, $gui) = @{$_[1]};
+            $self->{layers}[$i]->open_labeling_dialog($gui);
+        };
         push @properties_submenus, $item;
         push @properties_submenus, sub {
-	    my($self, $gui) = @{$_[1]};
-	    $self->{layers}[$i]->open_properties_dialog($gui);
-	};
+            my($self, $gui) = @{$_[1]};
+            $self->{layers}[$i]->open_properties_dialog($gui);
+        };
     }
     my @items;
     push @items, (
-	'_Unselect all' => sub {
-	    my($self, $gui) = @{$_[1]};
-	    $self->select;
-	    $gui->{overlay}->update_image;
-	    $self->open_features_dialog($gui, 1);
-	},
-	'_Symbol...' => \@symbol_submenus,
-	'_Colors...' => \@colors_submenus,
-	'_Labeling...' => \@labeling_submenus,
-	'_Inspect...' => sub {
-	    my($self, $gui) = @{$_[1]};
-	    $gui->inspect($self->inspect_data, $self->name);
-	},
-	'_Properties...' => \@properties_submenus
+        '_Unselect all' => sub {
+            my($self, $gui) = @{$_[1]};
+            $self->select;
+            $gui->{overlay}->update_image;
+            $self->open_features_dialog($gui, 1);
+        },
+        '_Symbol...' => \@symbol_submenus,
+        '_Colors...' => \@colors_submenus,
+        '_Labeling...' => \@labeling_submenus,
+        '_Inspect...' => sub {
+            my($self, $gui) = @{$_[1]};
+            $gui->inspect($self->inspect_data, $self->name);
+        },
+        '_Properties...' => \@properties_submenus
     );
     return @items;
 }

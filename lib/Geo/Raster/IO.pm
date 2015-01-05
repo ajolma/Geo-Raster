@@ -12,13 +12,13 @@ sub gdal_open {
     my($self, %params) = @_;
     my $dataset;
     if ($params{dataset}) {
-	$dataset = $params{dataset};
+        $dataset = $params{dataset};
     } elsif ($params{filename}) {
-	my $access = $params{access} || 'ReadOnly';
-	$dataset = Geo::GDAL::Open($params{filename}, $access);
-	croak "Geo::GDAL::Open failed for ".$params{filename} unless $dataset;
+        my $access = $params{access} || 'ReadOnly';
+        $dataset = Geo::GDAL::Open($params{filename}, $access);
+        croak "Geo::GDAL::Open failed for ".$params{filename} unless $dataset;
     } else {
-	croak "gdal_open called without a filename or dataset";
+        croak "gdal_open called without a filename or dataset";
     }
     if (0) {
         my $t = $dataset->GetGeoTransform;
@@ -30,8 +30,8 @@ sub gdal_open {
     $self->{GDAL}->{dataset} = $dataset;
     $self->{GDAL}->{band} = $band;
     if ($params{load}) {
-	cache($self);
-	delete $self->{GDAL};
+        cache($self);
+        delete $self->{GDAL};
     }
     return 1;
 }
@@ -73,8 +73,8 @@ sub dataset {
 sub band {
     my $self = shift;
     if ($self->{GDAL}) {
-	return unless $self->{GDAL}->{dataset};
-	return $self->{GDAL}->{dataset}->GetRasterBand($self->{GDAL}->{band});
+        return unless $self->{GDAL}->{dataset};
+        return $self->{GDAL}->{dataset}->GetRasterBand($self->{GDAL}->{band});
     }
     my $ds = $self->dataset();
     return $ds->Band(1);
@@ -128,44 +128,44 @@ sub cache {
     my $clip;
     my $cell_size;
     if (defined $_[0]) {
-	if (@_ == 1) { # use the given grid as a model
-	    croak "usage: \$raster->cache(\$another_raster)" unless blessed($_[0]) and $_[0]->isa('Geo::Raster');
-	    if ($_[0]->{GDAL}) {
-		my $ds = $_[0]->{GDAL}->{dataset};
-		my $h = $ds->{RasterYSize};
-		my $w = $ds->{RasterXSize};
-		my $t = $ds->GetGeoTransform;
-		my $min_x = $t->[1] > 0 ? $t->[0] : $t->[0]+$w*$t->[1];
-		my $max_x = $t->[1] > 0 ? $t->[0]+$w*$t->[1] : $t->[0];
-		my $min_y = $t->[5] > 0 ? $t->[3] : $t->[3]+$h*$t->[5];
-		my $max_y = $t->[5] > 0 ? $t->[3]+$h*$t->[5] : $t->[3];
-		$clip = [$min_x, $min_y, $max_x, $max_y];
-		$cell_size = CORE::abs($t->[1]);
-	    } else {
-		$clip = ral_grid_get_world($_[0]->{GRID}); 
-		$cell_size = ral_grid_get_cell_size($_[0]->{GRID});
-	    }
-	} else {
-	    $clip = [@_[0..3]];
-	    if ($clip->[1] > $clip->[3]) { # cope with ul,dr
-		my $tmp = $clip->[3];
-		$clip->[3] = $clip->[1];
-		$clip->[1] = $tmp;
-	    }
-	    my $t = $dataset->GetGeoTransform;
-	    $cell_size = CORE::abs($t->[1]);
-	    $cell_size = $_[4] if defined($_[4]) and $_[4] > $cell_size;
-	}
+        if (@_ == 1) { # use the given grid as a model
+            croak "usage: \$raster->cache(\$another_raster)" unless blessed($_[0]) and $_[0]->isa('Geo::Raster');
+            if ($_[0]->{GDAL}) {
+                my $ds = $_[0]->{GDAL}->{dataset};
+                my $h = $ds->{RasterYSize};
+                my $w = $ds->{RasterXSize};
+                my $t = $ds->GetGeoTransform;
+                my $min_x = $t->[1] > 0 ? $t->[0] : $t->[0]+$w*$t->[1];
+                my $max_x = $t->[1] > 0 ? $t->[0]+$w*$t->[1] : $t->[0];
+                my $min_y = $t->[5] > 0 ? $t->[3] : $t->[3]+$h*$t->[5];
+                my $max_y = $t->[5] > 0 ? $t->[3]+$h*$t->[5] : $t->[3];
+                $clip = [$min_x, $min_y, $max_x, $max_y];
+                $cell_size = CORE::abs($t->[1]);
+            } else {
+                $clip = ral_grid_get_world($_[0]->{GRID}); 
+                $cell_size = ral_grid_get_cell_size($_[0]->{GRID});
+            }
+        } else {
+            $clip = [@_[0..3]];
+            if ($clip->[1] > $clip->[3]) { # cope with ul,dr
+                my $tmp = $clip->[3];
+                $clip->[3] = $clip->[1];
+                $clip->[1] = $tmp;
+            }
+            my $t = $dataset->GetGeoTransform;
+            $cell_size = CORE::abs($t->[1]);
+            $cell_size = $_[4] if defined($_[4]) and $_[4] > $cell_size;
+        }
     } else {
-	my $h = $dataset->{RasterYSize};
-	my $w = $dataset->{RasterXSize};
-	my $t = $dataset->GetGeoTransform;
-	my $min_x = $t->[1] > 0 ? $t->[0] : $t->[0]+$w*$t->[1];
-	my $max_x = $t->[1] > 0 ? $t->[0]+$w*$t->[1] : $t->[0];
-	my $min_y = $t->[5] > 0 ? $t->[3] : $t->[3]+$h*$t->[5];
-	my $max_y = $t->[5] > 0 ? $t->[3]+$h*$t->[5] : $t->[3];
-	$clip = [$min_x, $min_y, $max_x, $max_y];
-	$cell_size = CORE::abs($t->[1]);
+        my $h = $dataset->{RasterYSize};
+        my $w = $dataset->{RasterXSize};
+        my $t = $dataset->GetGeoTransform;
+        my $min_x = $t->[1] > 0 ? $t->[0] : $t->[0]+$w*$t->[1];
+        my $max_x = $t->[1] > 0 ? $t->[0]+$w*$t->[1] : $t->[0];
+        my $min_y = $t->[5] > 0 ? $t->[3] : $t->[3]+$h*$t->[5];
+        my $max_y = $t->[5] > 0 ? $t->[3]+$h*$t->[5] : $t->[3];
+        $clip = [$min_x, $min_y, $max_x, $max_y];
+        $cell_size = CORE::abs($t->[1]);
     }
 
     my $gd = ral_grid_create_using_GDAL($dataset, $self->{GDAL}->{band}, @$clip, $cell_size);
@@ -174,7 +174,7 @@ sub cache {
     #my $band = $dataset->GetRasterBand($self->{GDAL}->{band});
     #my $nodata_value = $band->GetNoDataValue;
     #if (defined $nodata_value and $nodata_value ne '') {
-	#ral_grid_set_nodata_value($gd, $nodata_value);
+        #ral_grid_set_nodata_value($gd, $nodata_value);
     #}
     
     return Geo::Raster->new($gd) if defined wantarray; # return strictly Geo::Rasters
@@ -192,7 +192,7 @@ sub exists {
     my $filename = @_ == 2 ? $_[1] : $_[0]; # can be used also as object method
     # better safe than sorry:
     return -e "$filename.bil" or -e "$filename.BIL" or
-	-e "$filename.hdr" or -e "$filename.HDR";
+        -e "$filename.hdr" or -e "$filename.HDR";
 }
 
 ## @method void save($filename, $format)
@@ -223,14 +223,14 @@ sub save {
     $filename =~ s/\.\w+$// if $ext eq 'bil' or $ext eq 'asc';
 
     if ($ext eq 'asc' or ($format and $format =~ /arc\/info ascii/i)) {
-	ral_grid_save_ascii($self->{GRID}, "$filename.asc");
-	return;
+        ral_grid_save_ascii($self->{GRID}, "$filename.asc");
+        return;
     }
 
     open(my $fh, '>', "$filename.hdr") or croak "can't write to $filename.hdr: $!\n";
 
     my($datatype, $M, $N, $cell_size, $minX, $maxX, $minY, $maxY, $nodata_value) = 
-	$self->_attributes();
+        $self->_attributes();
 
     # these depend on how libral is configured! lookup needed
     my $nbits = $datatype == $Geo::Raster::REAL_GRID ? 32 : 16;
@@ -280,17 +280,17 @@ sub dump {
     my($self, $to) = @_;
     my $close;
     if ($to) {
-	unless (ref($to) eq 'GLOB' or (blessed($to) and $to->isa('FileHandle'))) {
-	    open(my $fh, '>', $to) or croak "can't write to $to: $!";
-	    $to = $fh;
-	    $close = 1;
-	}
+        unless (ref($to) eq 'GLOB' or (blessed($to) and $to->isa('FileHandle'))) {
+            open(my $fh, '>', $to) or croak "can't write to $to: $!";
+            $to = $fh;
+            $close = 1;
+        }
     } else {
-	$to = \*STDOUT;
+        $to = \*STDOUT;
     }
     my $points = $self->array();
     for my $point (@$points) {
-	print $to "$point->[0], $point->[1], $point->[2]\n";
+        print $to "$point->[0], $point->[1], $point->[2]\n";
     }
     close($to) if $close;
 }
@@ -306,18 +306,18 @@ sub restore {
     my($self, $from) = @_;
     my $close;
     if ($from) {
-	unless (ref($from) eq 'GLOB' or (blessed($from) and $from->isa('FileHandle'))) {
-	    open(my $fh, '<', $from) or croak "can't read from $from: $!";
-	    $from = $fh;
-	    $close = 1;
-	}
+        unless (ref($from) eq 'GLOB' or (blessed($from) and $from->isa('FileHandle'))) {
+            open(my $fh, '<', $from) or croak "can't read from $from: $!";
+            $from = $fh;
+            $close = 1;
+        }
     } else {
-	$from = \*STDIN;
+        $from = \*STDIN;
     }
     ral_grid_set_all($self->{GRID}, 0);
     while (<$from>) {
-	my($i, $j, $x) = split(/,/);
-	ral_grid_set($self->{GRID}, $i, $j, $x);
+        my($i, $j, $x) = split(/,/);
+        ral_grid_set($self->{GRID}, $i, $j, $x);
     }
     close($from) if $close;
 }

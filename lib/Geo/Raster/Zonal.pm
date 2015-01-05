@@ -46,10 +46,10 @@ sub zonal_fct {
     $fct = 'mean' unless $fct;
     my %m;
     for (keys %{$z}) {
-    	# http://search.cpan.org/~colink/Statistics-Descriptive-2.6/Descriptive.pm
-	my $stat = Statistics::Descriptive::Full->new();
-	$stat->add_data(@{$z->{$_}});
-	$m{$_} = eval "\$stat->$fct();";
+            # http://search.cpan.org/~colink/Statistics-Descriptive-2.6/Descriptive.pm
+        my $stat = Statistics::Descriptive::Full->new();
+        $stat->add_data(@{$z->{$_}});
+        $m{$_} = eval "\$stat->$fct();";
     }
     return \%m;
 }

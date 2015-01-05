@@ -40,18 +40,18 @@ sub focal_sum {
     my $self = shift;
     my $mask = shift;
     if (@_) {
-	my($i, $j) = @_;
-	my $x = ral_grid_focal_sum($self->{GRID}, $i, $j, $mask);
-	return $x;
+        my($i, $j) = @_;
+        my $x = ral_grid_focal_sum($self->{GRID}, $i, $j, $mask);
+        return $x;
     } else {
-	my $grid = ral_grid_focal_sum_grid($self->{GRID}, $mask);
-	if (defined wantarray) {
-	    $grid = new Geo::Raster($grid);
-	    return $grid;
-	} else {
-	    ral_grid_destroy($self->{GRID});
-	    $self->{GRID} = $grid;
-	}
+        my $grid = ral_grid_focal_sum_grid($self->{GRID}, $mask);
+        if (defined wantarray) {
+            $grid = new Geo::Raster($grid);
+            return $grid;
+        } else {
+            ral_grid_destroy($self->{GRID});
+            $self->{GRID} = $grid;
+        }
     }
 }
 
@@ -72,18 +72,18 @@ sub focal_mean {
     my $self = shift;
     my $mask = shift;
     if (@_) {
-	my($i, $j) = @_;
-	my $x = ral_grid_focal_mean($self->{GRID}, $i, $j, $mask);
-	return $x;
+        my($i, $j) = @_;
+        my $x = ral_grid_focal_mean($self->{GRID}, $i, $j, $mask);
+        return $x;
     } else {
-	my $grid = ral_grid_focal_mean_grid($self->{GRID}, $mask);
-	if (defined wantarray) {
-	    $grid = new Geo::Raster($grid);
-	    return $grid;
-	} else {
-	    ral_grid_destroy($self->{GRID});
-	    $self->{GRID} = $grid;
-	}
+        my $grid = ral_grid_focal_mean_grid($self->{GRID}, $mask);
+        if (defined wantarray) {
+            $grid = new Geo::Raster($grid);
+            return $grid;
+        } else {
+            ral_grid_destroy($self->{GRID});
+            $self->{GRID} = $grid;
+        }
     }
 }
 
@@ -104,18 +104,18 @@ sub focal_variance {
     my $self = shift;
     my $mask = shift;
     if (@_) {
-	my($i, $j) = @_;
-	my $x = ral_grid_focal_variance($self->{GRID}, $i, $j, $mask);
-	return $x;
+        my($i, $j) = @_;
+        my $x = ral_grid_focal_variance($self->{GRID}, $i, $j, $mask);
+        return $x;
     } else {
-	my $grid = ral_grid_focal_variance_grid($self->{GRID}, $mask);
-	if (defined wantarray) {
-	    $grid = new Geo::Raster($grid);
-	    return $grid;
-	} else {
-	    ral_grid_destroy($self->{GRID});
-	    $self->{GRID} = $grid;
-	}
+        my $grid = ral_grid_focal_variance_grid($self->{GRID}, $mask);
+        if (defined wantarray) {
+            $grid = new Geo::Raster($grid);
+            return $grid;
+        } else {
+            ral_grid_destroy($self->{GRID});
+            $self->{GRID} = $grid;
+        }
     }
 }
 
@@ -136,18 +136,18 @@ sub focal_count {
     my $self = shift;
     my $mask = shift;
     if (@_) {
-	my($i, $j) = @_;
-	my $x = ral_grid_focal_count($self->{GRID}, $i, $j, $mask);
-	return $x;
+        my($i, $j) = @_;
+        my $x = ral_grid_focal_count($self->{GRID}, $i, $j, $mask);
+        return $x;
     } else {
-	my $grid = ral_grid_focal_count_grid($self->{GRID}, $mask);
-	if (defined wantarray) {
-	    $grid = new Geo::Raster($grid);
-	    return $grid;
-	} else {
-	    ral_grid_destroy($self->{GRID});
-	    $self->{GRID} = $grid;
-	}
+        my $grid = ral_grid_focal_count_grid($self->{GRID}, $mask);
+        if (defined wantarray) {
+            $grid = new Geo::Raster($grid);
+            return $grid;
+        } else {
+            ral_grid_destroy($self->{GRID});
+            $self->{GRID} = $grid;
+        }
     }
 }
 
@@ -171,18 +171,18 @@ sub focal_count_of {
     my $mask = shift;
     my $value = shift;
     if (@_) {
-	my($i, $j) = @_;
-	my $x = ral_grid_focal_count_of($self->{GRID}, $i, $j, $mask, $value);
-	return $x;
+        my($i, $j) = @_;
+        my $x = ral_grid_focal_count_of($self->{GRID}, $i, $j, $mask, $value);
+        return $x;
     } else {
-	my $grid = ral_grid_focal_count_of_grid($self->{GRID}, $mask, $value);
-	if (defined wantarray) {
-	    $grid = new Geo::Raster($grid);
-	    return $grid;
-	} else {
-	    ral_grid_destroy($self->{GRID});
-	    $self->{GRID} = $grid;
-	}
+        my $grid = ral_grid_focal_count_of_grid($self->{GRID}, $mask, $value);
+        if (defined wantarray) {
+            $grid = new Geo::Raster($grid);
+            return $grid;
+        } else {
+            ral_grid_destroy($self->{GRID});
+            $self->{GRID} = $grid;
+        }
     }
 }
 
@@ -204,11 +204,11 @@ sub spread {
     my($self, $mask) = @_;
     my $grid = ral_grid_spread($self->{GRID}, $mask);
     if (defined wantarray) {
-	$grid = new Geo::Raster($grid);
-	return $grid;
+        $grid = new Geo::Raster($grid);
+        return $grid;
     } else {
-	ral_grid_destroy($self->{GRID});
-	$self->{GRID} = $grid;
+        ral_grid_destroy($self->{GRID});
+        $self->{GRID} = $grid;
     }
 }
 
@@ -216,11 +216,11 @@ sub spread_random {
     my($self, $mask) = @_;
     my $grid = ral_grid_spread_random($self->{GRID}, $mask);
     if (defined wantarray) {
-	$grid = new Geo::Raster($grid);
-	return $grid;
+        $grid = new Geo::Raster($grid);
+        return $grid;
     } else {
-	ral_grid_destroy($self->{GRID});
-	$self->{GRID} = $grid;
+        ral_grid_destroy($self->{GRID});
+        $self->{GRID} = $grid;
     }
 }
 
