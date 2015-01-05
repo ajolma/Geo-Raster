@@ -938,7 +938,7 @@ sub nodata_value {
 	    my $band = $self->band();
 	    $nodata_value = $band->NoDataValue($nodata_value) if $band;
 	} else {
-            if (not defined($nodata_value)) {
+            if (CORE::not defined($nodata_value)) {
                 ral_grid_remove_nodata_value($self->{GRID});
             } else {
                 ral_grid_set_nodata_value($self->{GRID}, $nodata_value);

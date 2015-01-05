@@ -1741,7 +1741,7 @@ ral_grid_connect(gd)
 		if (ral_has_msg())
 			croak("%s",ral_get_msg());
 
-NO_OUTPUT int
+int
 ral_grid_number_of_areas(gd,connectivity)
 	ral_grid *gd
 	int connectivity

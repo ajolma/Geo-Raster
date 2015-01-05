@@ -412,9 +412,7 @@ sub number_areas {
     $connectivity = 8 unless $connectivity;
     if (defined wantarray) {
 	my $g = new Geo::Raster($self);
-	if (ral_grid_number_of_areas($g->{GRID}, $connectivity)) {
-	    return $g;
-	}
+        return $g if ral_grid_number_of_areas($g->{GRID}, $connectivity);
     } else {
 	ral_grid_number_of_areas($self->{GRID}, $connectivity);	
     }
