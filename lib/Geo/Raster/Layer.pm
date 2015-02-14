@@ -373,11 +373,11 @@ sub render {
     #my $schema = $self->schema();
     #$self->{COLOR_FIELD_VALUE} = $schema->{$self->{COLOR_FIELD}}{Number};
 
-    my $tmp = Gtk2::Ex::Geo::gtk2_ex_geo_pixbuf_get_world($pb);
+    my $tmp = $pb->get_world();
     my($minX,$minY,$maxX,$maxY) = @$tmp;
-    $tmp = Gtk2::Ex::Geo::gtk2_ex_geo_pixbuf_get_size($pb);
+    $tmp = $pb->get_size();
     my($w,$h) = @$tmp;
-    my $pixel_size = Gtk2::Ex::Geo::gtk2_ex_geo_pixbuf_get_pixel_size($pb);
+    my $pixel_size = $pb->get_pixel_size();
 
     my $gdal = $self->{GDAL};
 
@@ -408,6 +408,15 @@ sub render {
     } else {
         croak("bad Geo::Raster::Layer datatype: $datatype");
     }
+}
+
+sub statusbar_info {
+    my($self, $x, $y) = @_;
+    my @ij = $self->w2g($x, $y);
+    my $info = sprintf(" (i,j) = (%i, %i)", @ij);
+    my $value = $self->point($x, $y);
+    $info .= ' '.$value if defined $value and $value ne 'nodata';
+    return $info;
 }
 
 ## @ignore
