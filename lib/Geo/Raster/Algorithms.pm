@@ -1,5 +1,7 @@
-## @class Geo::Raster::Algorithms
-# @brief Adds various algorithmic methods to Geo::Raster
+#** @file Algorithms.pm
+# @brief Add some algorithms (such as Dijkstra) to Geo::Raster
+#*
+
 package Geo::Raster;
 
 use strict;
@@ -10,7 +12,7 @@ eval {
     require Geo::Vector;
 };
 
-## @method Geo::Raster interpolate(%params)
+#** @method Geo::Raster interpolate(%params)
 #
 # @brief Interpolate values for nodata cells.
 #
@@ -20,6 +22,7 @@ eval {
 # @return a new raster. In void context changes this raster.
 # @exception A unsupported method is specified.
 # @todo Add more interpolation methods.
+#*
 sub interpolate {
     my($self, %param) = @_;
     $param{method} = 'nearest neighbor' unless defined $param{method};
@@ -38,7 +41,7 @@ sub interpolate {
     }
 }
 
-## @method Geo::Raster dijkstra(@cell)
+#** @method Geo::Raster dijkstra(@cell)
 #
 # @brief Computes a cost-to-go raster for a given cost raster and a
 # target cell.
@@ -49,6 +52,7 @@ sub interpolate {
 # a part of the optimal route to the target.
 # @param[in] cell The target cell.
 # @return a new raster. In void context changes this raster.
+#*
 sub dijkstra {
     my($self, $i, $j) = @_;
     my $new = ral_grid_dijkstra($self->{GRID}, $i, $j);
@@ -60,11 +64,12 @@ sub dijkstra {
     }
 }
 
-## @method Geo::Raster colored_map()
+#** @method Geo::Raster colored_map()
 #
 # @brief Attempts to use the smallest possible number of integers for
 # the zones in the raster.
 # @return a new raster. In void context changes this raster.
+#*
 sub colored_map {
     my $self = shift;
     my $n = $self->neighbors();
@@ -107,7 +112,7 @@ sub colored_map {
     }
 }
 
-## @method Geo::Raster applytempl(listref templ, $new_val)
+#** @method Geo::Raster applytempl(listref templ, $new_val)
 #
 # @brief Apply a modifying template on the raster.
 #
@@ -133,6 +138,7 @@ sub colored_map {
 # template rules match the cell and its 8 neighbours. If not given, then 1 is 
 # used to inform about match success.
 # @return a new raster. In void context changes this raster.
+#*
 sub applytempl {
     my($self, $templ, $new_val) = @_;
     croak "applytempl: too few values in the template" if $#$templ < 8;
@@ -142,7 +148,7 @@ sub applytempl {
     return $self if defined wantarray;
 }
 
-## @method Geo::Vector polygonize(%params)
+#** @method Geo::Vector polygonize(%params)
 #
 # @brief Polygonizes the raster into a polygon OGR layer.
 #
@@ -150,6 +156,7 @@ sub applytempl {
 # Geo::Vector. Uses Polygonize from GDAL.
 #
 # @return a new OGR layer wrapped into a Geo::Vector object.
+#*
 sub polygonize {
     my ($self, %params) = @_;
 
@@ -190,7 +197,7 @@ sub polygonize {
     return $vector;
 }
 
-## @method Geo::Raster ca_step(@k)
+#** @method Geo::Raster ca_step(@k)
 #
 # @brief Perform a cellular automata step.
 #
@@ -205,6 +212,7 @@ sub polygonize {
 # cell values.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub ca_step {
     my($self, @k) = @_;
     if (defined wantarray) {

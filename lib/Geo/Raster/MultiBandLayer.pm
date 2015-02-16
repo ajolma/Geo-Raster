@@ -1,16 +1,10 @@
-package Geo::Raster::MultiBandLayer;
+#** @file MultiBandLayer.pm
+#*
+
+#** @class Geo::Raster::MultiBandLayer
 # @brief A subclass of Gtk2::Ex::Geo::Layer, which constains several Geo::Raster objects
-#
-# These methods are not documented. For documentation, look at
-# Gtk2::Ex::Geo::Layer.
-
-=pod
-
-=head1 NAME
-
-Geo::Raster::MultiBandLayer - A geospatial raster layer class for Gtk2::Ex::Geo
-
-=cut
+#*
+package Geo::Raster::MultiBandLayer;
 
 use strict;
 use warnings;
@@ -32,13 +26,12 @@ use Geo::Raster::Layer::Dialogs::Properties::libral;
 
 require Exporter;
 
-our @ISA = qw(Exporter Gtk2::Ex::Geo::Layer);
+use base qw(Exporter Gtk2::Ex::Geo::Layer);
 our %EXPORT_TAGS = ( 'all' => [ ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 our $VERSION = 0.01;
 
-## @ignore
 sub new {
     my($package, %params) = @_;
     my $self = Gtk2::Ex::Geo::Layer::new($package, %params);
@@ -55,27 +48,23 @@ sub new {
     return $self;
 }
 
-## @ignore
 sub DESTROY {
     my $self = shift;
     return unless $self;
     Gtk2::Ex::Geo::Layer::DESTROY($self);
 }
 
-## @ignore
 sub defaults {
     my($self, %params) = @_;
     # set inherited from params:
     $self->SUPER::defaults(%params);
 }
 
-## @ignore
 sub type {
     my($self, $param) = @_;
     return ($param and $param eq 'long') ? 'Multiband raster' : 'M';
 }
 
-## @ignore
 sub alpha {
     my($self, $alpha) = @_;
     if (defined $alpha) {
@@ -87,7 +76,6 @@ sub alpha {
     }
 }
 
-## @ignore
 sub menu_items {
     my($self) = @_;
     my @symbol_submenus;
@@ -137,7 +125,6 @@ sub menu_items {
     return @items;
 }
 
-## @ignore
 sub world {
     my $self = shift;
     my @bb; # ($min_x, $min_y, $max_x, $max_y);
@@ -155,7 +142,6 @@ sub world {
     return @bb;
 }
 
-## @ignore
 sub render {
     my($self, $pb) = @_;
 

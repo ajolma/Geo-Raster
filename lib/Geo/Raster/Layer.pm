@@ -1,16 +1,10 @@
-package Geo::Raster::Layer;
+#** @file Layer.pm
+#*
+
+#** @class Geo::Raster::Layer
 # @brief A subclass of Gtk2::Ex::Geo::Layer and Geo::Raster
-#
-# These methods are not documented. For documentation, look at
-# Gtk2::Ex::Geo::Layer.
-
-=pod
-
-=head1 NAME
-
-Geo::Raster::Layer - A geospatial raster layer class for Gtk2::Ex::Geo
-
-=cut
+#*
+package Geo::Raster::Layer;
 
 use strict;
 use warnings;
@@ -34,7 +28,7 @@ use Geo::Raster::MultiBandLayer;
 
 require Exporter;
 
-our @ISA = qw(Exporter Geo::Raster Gtk2::Ex::Geo::Layer);
+use base qw(Exporter Geo::Raster Gtk2::Ex::Geo::Layer);
 our %EXPORT_TAGS = ( 'all' => [ qw( %EPSG ) ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
@@ -148,7 +142,6 @@ sub save_all_rasters {
     }
 }
 
-## @ignore
 sub upgrade {
     my($object) = @_;
     if (blessed($object) and $object->isa('Geo::Raster') and !(blessed($object) and $object->isa('Geo::Raster::Layer'))) {
@@ -159,7 +152,6 @@ sub upgrade {
     return 0;
 }
 
-## @ignore
 sub new {
     my($package, %params) = @_;
     my $self = Geo::Raster::new($package, %params);
@@ -167,7 +159,6 @@ sub new {
     return $self;
 }
 
-## @ignore
 sub DESTROY {
     my $self = shift;
     return unless $self;
@@ -175,7 +166,6 @@ sub DESTROY {
     Gtk2::Ex::Geo::Layer::DESTROY($self);
 }
 
-## @ignore
 sub defaults {
     my($self, %params) = @_;
     # these can still be overridden with params:
@@ -207,7 +197,6 @@ sub defaults {
     $self->SUPER::defaults(%params);
 }
 
-## @ignore
 sub save {
     my($self, $filename, $format) = @_;
     $self->SUPER::save($filename, $format);
@@ -232,7 +221,6 @@ sub save {
     }
 }
 
-## @ignore
 sub type {
     my($self, $format) = @_;
     my $type = $self->data_type;
@@ -252,7 +240,6 @@ sub type {
     return $type;
 }
 
-## @ignore
 sub supported_palette_types {
     my($self) = @_;
     return ('Single color') unless $self->{GRID}; # may happen if not cached
@@ -264,7 +251,6 @@ sub supported_palette_types {
     }
 }
 
-## @ignore
 # set GDAL color table if this is a GDAL raster
 sub color_table {
     my($self, $color_table) = @_;
@@ -283,7 +269,6 @@ sub color_table {
     }
 }
 
-## @ignore
 sub supported_symbol_types {
     my($self) = @_;
     return ('No symbol') unless $self->{GRID}; # may happen if not cached
@@ -294,7 +279,6 @@ sub supported_symbol_types {
     }
 }
 
-## @ignore
 sub open_properties_dialog {
     my($self, $gui) = @_;
     if ($self->{GDAL}) {
@@ -304,11 +288,9 @@ sub open_properties_dialog {
     }
 }
 
-## @ignore
 sub open_features_dialog {
 }
 
-## @ignore
 sub menu_items {
     my($self) = @_;
     my @items;
@@ -356,7 +338,6 @@ sub menu_items {
     return @items;
 }
 
-## @ignore
 sub render {
     my($self, $pb) = @_;
 
@@ -419,17 +400,14 @@ sub statusbar_info {
     return $info;
 }
 
-## @ignore
 sub open_copy_dialog {
     return Geo::Raster::Layer::Dialogs::Copy::open(@_);
 }
 
-## @ignore
 sub open_polygonize_dialog {
     return Geo::Raster::Layer::Dialogs::Polygonize::open(@_);
 }
 
-##@ignore
 sub epsg_help {
     my $entry = shift;
     my $auto = $entry->get_completion;

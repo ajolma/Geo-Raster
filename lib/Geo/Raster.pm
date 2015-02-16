@@ -1,31 +1,13 @@
-package Geo::Raster;
+#** @file Raster.pm
+#*
 
-## @class Geo::Raster
+#** @class Geo::Raster
 # @brief A class for geospatial rasters.
 #
-# Import tags:
+## Import tags:
 # - \a logics Imports (overrides) \c not, \c and, and \c or
-#
-# This module should be discussed in https://list.hut.fi/mailman/listinfo/geo-perl
-#
-# The homepage of this module is 
-# https://github.com/ajolma/geoinformatica.
-#
-# @author Ari Jolma
-# @author Copyright (c) 1999- by Ari Jolma
-# @author This library is free software; you can redistribute it and/or modify
-# it according to the Artistic License 2.0.
-
-=pod
-
-=head1 NAME
-
-Geo::Raster - Perl extension for geospatial rasters
-
-The <a href="http://geoinformatics.aalto.fi/doc/Geoinformatica/html/">
-documentation for Geo::Raster</a> is written in doxygen format.
-
-=cut
+#*
+package Geo::Raster;
 
 use strict;
 use warnings;
@@ -56,7 +38,7 @@ our $REAL_GRID = 2;
 
 require Exporter;
 
-our @ISA = qw( Exporter );
+use base qw( Exporter );
 
 our %EXPORT_TAGS = (types  => [ qw ( $INTEGER_GRID $REAL_GRID ) ],
                     logics => [ qw ( &not &and &or ) ] );
@@ -66,12 +48,11 @@ our @EXPORT_OK = qw ( $INTEGER_GRID $REAL_GRID
 
 our $AUTOLOAD;
 
-## @ignore
 sub dl_load_flags {0x01}
 
 XSLoader::load( 'Geo::Raster', $VERSION );
 
-my %dispatch = (
+our %dispatch = ( 
     GetBandNumber =>  \&Geo::GDAL::Band::GetBandNumber,
     DataType =>  \&Geo::GDAL::Band::DataType,
     Size =>  \&Geo::GDAL::Band::Size,
@@ -114,9 +95,8 @@ my %dispatch = (
     SetDefaultRAT =>  \&Geo::GDAL::Band::SetDefaultRAT,
     Contours =>  \&Geo::GDAL::Band::Contours,
     FillNodata =>  \&Geo::GDAL::Band::FillNodata,
-    );
+);
 
-## @ignore
 # call Geo::GDAL::Band methods as a fallback
 sub AUTOLOAD {
     my $self = shift;
@@ -129,7 +109,6 @@ sub AUTOLOAD {
     }
 }
 
-## @ignore
 sub from_piddle {
     my($self, $pdl) = @_;
     $pdl->make_physical;
@@ -148,7 +127,6 @@ sub from_piddle {
     pdl2grid($data, $type, $self->{GRID});
 }
 
-## @ignore
 sub _new_grid {
     my($self, $grid) = @_;
     return unless $grid;
@@ -157,7 +135,6 @@ sub _new_grid {
     _attributes($self);
 }
 
-## @ignore
 sub _interpret_datatype {
     return $INTEGER_GRID if $_[0] =~  m/^i/i;
     return $REAL_GRID if $_[0] =~ m/^real/i;
@@ -167,43 +144,9 @@ sub _interpret_datatype {
     return $INTEGER_GRID;
 }
 
-## @cmethod Geo::Raster new($filename)
-#
-# @brief Create a new raster from a file.
-#
-# @note
-# The new raster is only an interface to a raster accessed by GDAL. To
-# load data from GDAL to memory use the method Geo::Raster::IO::cache.
-#
-# Example:
-# @code
-# $raster = Geo::Raster->new("data/dem.bil");
-# @endcode
-# @param[in] filename Name of a raster file that is recognized by GDAL.
-# @return a new raster.
-
-## @cmethod Geo::Raster new($datatype, $rows, $columns)
+#** @method Geo::Raster new()
 #
 # @brief Create a new raster.
-#
-# Example of creating a new floating point raster:
-# @code
-# $raster = Geo::Raster->new('real', 100, 100);
-# @endcode
-# Example of creating a new integer raster:
-# @code
-# $raster = Geo::Raster->new(100, 100);
-# @endcode
-#
-# @param[in] datatype (optional) The datatype for the new raster,
-# either "integer" or "real".  Default is integer.
-# @param[in] rows Height of the new raster.
-# @param[in] columns Width of the new raster.
-# @return a new raster
-
-## @cmethod Geo::Raster new(%params)
-#
-# @brief Create a new raster using named parameters.
 #
 # @param[in] params Named parameters:
 # - \a datatype The data type for the new raster. Either "real" or
@@ -225,10 +168,37 @@ sub _interpret_datatype {
 #   - miny
 #   - maxx
 #   - maxy
+#
+# @param[in] datatype (optional) The datatype for the new raster,
+# either "integer" or "real".  Default is integer.
+# @param[in] rows Height of the new raster.
+# @param[in] columns Width of the new raster.
+#
+# @param[in] filename Name of a raster file that is recognized by GDAL.
+#
 # @return a new raster.
+#
+# Example of using only a filename:
+# @code
+# $raster = Geo::Raster->new("data/dem.bil");
+# @endcode
+# @note
+# The new raster is only an interface to a raster accessed by GDAL. To
+# load data from GDAL to memory use the method Geo::Raster::IO::cache.
+#
+# Example of creating a new floating point raster:
+# @code
+# $raster = Geo::Raster->new('real', 100, 100);
+# @endcode
+# Example of creating a new integer raster:
+# @code
+# $raster = Geo::Raster->new(100, 100);
+# @endcode
+#
 # @exception The cells of the raster in a file are not squares.
 # @exception The orientation of the raster in a file is not strictly north up.
 # @todo Take GDAL into account in copying.
+#*
 sub new {
     my $package = shift;
     my %params;
@@ -314,7 +284,6 @@ sub width {
     ral_grid_get_width($_[0]->{GRID})
 }
 
-## @ignore
 sub DESTROY {
     my $self = shift;
     return unless $self;
@@ -322,14 +291,13 @@ sub DESTROY {
     delete($self->{GRID});
 }
 
-## @ignore
 sub _with_decimal_point {
     my $tmp = shift;
     $tmp =~ s/,/./;
     return $tmp;
 }
 
-## @method @bounding_box(%params)
+#** @method @bounding_box(%params)
 # 
 # @brief Get or set the bounding box.
 # @param[in] params Named parameters:
@@ -341,6 +309,7 @@ sub _with_decimal_point {
 # if there is one.
 # @note At least three parameters are needed to define the bounding box.
 # @return (min_x, min_y, max_x, max_y) if possible
+#*
 sub world {
     my $self = shift;
     if (@_) {
@@ -418,59 +387,59 @@ sub world {
     #$self->_attributes;
 }
 
-## @method overlayable(Geo::Raster other)
+#** @method overlayable(Geo::Raster other)
 #
 # @brief Test if two rasters are overlayable.
+#*
 sub overlayable {
     my($self, $other) = @_;
     ral_grid_overlayable($self->{GRID}, $other->{GRID});
 }
 
-## @ignore
 *bounding_box = *world;
 
-## @method copy_world_to(Geo::Raster to)
+#** @method copy_world_to(Geo::Raster to)
 #
 # @brief The method copies the bounding box to the given raster.
 # @param[out] to A raster to which the world is copied to.
 # @note copy_world_to is a deprecated alias to copy_bounding_box_to
+#*
 sub copy_bounding_box_to {
     my($self, $to) = @_;
     ral_grid_copy_bounds($self->{GRID}, $to->{GRID});
 }
 
 
-## @ignore
 sub flip_horizontal {
     my($self) = @_;
     ral_grid_flip_horizontal($self->{GRID});
 }
 
-## @ignore
 sub flip_vertical {
     my($self) = @_;
     ral_grid_flip_vertical($self->{GRID});
 }
 
-## @ignore
 *copy_world_to = *copy_bounding_box_to;
 
-## @method boolean cell_in(@cell)
+#** @method boolean cell_in(@cell)
 #
 # @brief Whether a cell is in this raster.
 # @param[in] cell The cell.
 # @return boolean value.
+#*
 sub cell_in {
     my($self, @cell) = @_;
     return ($cell[0] >= 0 and $cell[0] < $self->{M} and 
             $cell[1] >= 0 and $cell[1] < $self->{N})
 }
 
-## @method boolean point_in(@point)
+#** @method boolean point_in(@point)
 #
 # @brief Whether a point is in the bounding box of this raster.
 # @param[in] point The point (x, y)
 # @return boolean value.
+#*
 sub point_in {
     my($self, @point) = @_;
     my $world = ral_grid_get_world($self->{GRID});
@@ -480,11 +449,12 @@ sub point_in {
             $point[1] <= $world->[3])
 }
 
-## @method @g2w(@cell)
+#** @method @g2w(@cell)
 #
 # @brief Convert cell coordinates to world coordinates.
 # @param[in] cell The cell coordinates (row, column).
 # @return The center point of the cell in world coordinates (x,y).
+#*
 sub g2w {
     my($self, @cell) = @_;
     if ($self->{GDAL}) {
@@ -497,11 +467,12 @@ sub g2w {
     return @$point;
 }
 
-## @method @w2g(@point)
+#** @method @w2g(@point)
 #
 # @brief Convert world coordinates to cell coordinates.
 # @param[in] point World coordinates (x, y)
 # @return The cell (row, column), which contains the point.
+#*
 sub w2g {
     my($self, @point) = @_;
     if ($self->{GDAL}) {
@@ -516,13 +487,14 @@ sub w2g {
     return @$cell;
 }
 
-## @method @ga2wa(@ga)
+#** @method @ga2wa(@ga)
 #
 # @brief Convert a region in this raster to a rectangle in world
 # coordinates.
 # @param[in] ga Region in this raster as an array (upper_row,
 # left_column, lower_row, right_column).
 # @return rectangle in world coordinates (x_min, y_min, x_max, y_max)
+#*
 sub ga2wa {
     my($self, @ga) = @_;
     if ($self->{GDAL}) {
@@ -535,7 +507,7 @@ sub ga2wa {
     return (@$min,@$max);
 }
 
-## @method @wa2ga(@wa)
+#** @method @wa2ga(@wa)
 #
 # @brief Convert a rectangle in world coordinates to a region in this
 # raster.
@@ -543,6 +515,7 @@ sub ga2wa {
 # (x_min, y_min, x_max, y_max).
 # @return region coordinates (upper_row, left_column, lower_row,
 # right_column)
+#*
 sub wa2ga {
     my($self, @wa) = @_;
     if ($self->{GDAL}) {
@@ -555,11 +528,12 @@ sub wa2ga {
     return (@$ul,@$lr);
 }
 
-## @method mask(Geo::Raster mask)
+#** @method mask(Geo::Raster mask)
 #
 # @brief Set or remove the mask.
 # @param[in] mask (optional). If mask is undef, the method removes the current 
 # mask.
+#*
 sub mask {
     my($self, $mask) = @_;
     $mask ? 
@@ -567,7 +541,7 @@ sub mask {
         ral_grid_clear_mask($self->{GRID});
 }
 
-## @method void set(@cell, $value)
+#** @method void set(@cell, $value)
 #
 # @brief Set the value of a cell.
 #
@@ -583,6 +557,7 @@ sub mask {
 # @param[in] cell (optional) the cell coordinates
 # @param[in] value (optional) The value to set, which can be a number,
 # "nodata" or a raster. Default is "nodata".
+#*
 sub set {
     my($self, $i, $j, $value) = @_;
     croak "set: GRID is undefined" unless $self->{GRID};
@@ -610,13 +585,14 @@ sub set {
     }
 }
 
-## @method $get(@cell)
+#** @method $get(@cell)
 # 
 # @brief Retrieve the value of a cell.
 #
 # If the cell has a nodata or out-of-world value undef is returned.
 # @param[in] cell The cell coordinates
 # @return Value of the cell.
+#*
 sub get {
     my($self, $i, $j, $distance) = @_;
     return unless $self->{GRID};
@@ -632,7 +608,7 @@ sub get {
     }
 }
 
-## @method $cell(@cell, $value)
+#** @method $cell(@cell, $value)
 #
 # @brief Set or get the value of a cell.
 # @param[in] cell The cell coordinates
@@ -640,6 +616,7 @@ sub get {
 # method returns the cells current value.
 # @return The cells current value. Only returned if no value is given to the 
 # method.
+#*
 sub cell {
     my($self, $i, $j, $value) = @_;
     if ($self->{GDAL}) {
@@ -661,7 +638,7 @@ sub cell {
     }
 }
 
-## @method $point($x, $y, $value)
+#** @method $point($x, $y, $value)
 #
 # @brief Set or get the value of a cell, which contains a point.
 # @param[in] x The x-coordinate inside the world.
@@ -670,6 +647,7 @@ sub cell {
 # returns the cells current value.
 # @return The cells current value in which the point is located. Only returned 
 # if no value is given to the method.
+#*
 sub point {
     my($self, $x, $y, $value) = @_;
    
@@ -694,12 +672,13 @@ sub point {
     }
 }
 
-## @method Geo::Raster data()
+#** @method Geo::Raster data()
 # 
 # @brief Return a raster indicating data and nodata cells.
 #
 # @return a raster, which has 1 in the cells that have values and 0 in
 # nodata cells. In void context changes this raster.
+#*
 sub data {
     my $self = shift;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -707,13 +686,14 @@ sub data {
     return $self if defined wantarray;
 }
 
-## @method $schema(hashref schema)
+#** @method $schema(hashref schema)
 #
 # @brief Returns the objects schema (table names and numbers).
 # @param[in] schema If the schema is given, then the method does nothing!
 # @return The current schema of the object.
 # @todo Support to give to the object a new schema.
 # @todo link with RATs in GDAL
+#*
 sub schema {
     my($self, $schema) = @_;
     if ($schema) {
@@ -733,13 +713,14 @@ sub schema {
     }
 }
 
-## @method $has_field($field_name)
+#** @method $has_field($field_name)
 #
 # @brief Indicates whether the raster attribute table (RAT) contain the given field.
 # @param[in] field_name Name of the field whose existence is checked.
 # @return True if the raster has a field having the same name as the given 
 # parameter, else returns false.
 # @todo link with RATs in GDAL
+#*
 sub has_field {
     my($self, $field_name) = @_;
     return 1 if $field_name eq 'Cell value';
@@ -750,7 +731,7 @@ sub has_field {
     return 0;
 }
 
-## @method @table($table)
+#** @method @table($table)
 #
 # @brief Get or set the raster attribute table.
 #
@@ -761,6 +742,7 @@ sub has_field {
 # @return If no parameter is given, the subroutine returns the current attribute 
 # table.
 # @todo link with RATs in GDAL
+#*
 sub table {
     my($self, $table) = @_;
     if (ref $table) {
@@ -790,7 +772,6 @@ sub table {
     }
 }
 
-## @ignore
 sub _type_name {
     my $self = shift;
     return undef unless $self->{DATATYPE}; # may happen if not cached
@@ -799,12 +780,13 @@ sub _type_name {
     return undef;
 }
 
-## @method list value_range(%params)
+#** @method list value_range(%params)
 #
 # @brief Returns the minimum and maximum values of the raster.
 # @param[in] params Named parameters:
 # - \a field_name The attribute whose min and max values are looked up.
 # @return array (min,max)
+#*
 sub value_range {
     my $self = shift;
     my $field_name;
@@ -837,7 +819,6 @@ sub value_range {
     return @$range;
 }
 
-## @ignore
 sub _attributes {
     my $self = shift;
     return unless $self->{GRID};
@@ -850,16 +831,16 @@ sub _attributes {
     return($datatype, $M, $N, $cell_size, @$world, $nodata);
 }
 
-## @ignore
 sub _datatype {
     ral_grid_get_datatype($_[0]->{GRID});
 }
 
-## @method $datatype()
+#** @method $datatype()
 #
 # @brief Returns the datatype of the raster as a string.
 # @return Name of type if the object has a raster. Type can be 'Integer'
 # or 'Real'.
+#*
 sub datatype {
     my $self = shift;
     if ($self->{GDAL} and $self->{GDAL}->{dataset}) {
@@ -875,18 +856,18 @@ sub datatype {
     return 'Real' if $self->{DATATYPE} == $REAL_GRID;
 }
 
-## @ignore
 sub data_type {
     my $self = shift;
     return $self->datatype;
 }
 
-## @method @size()
+#** @method @size()
 #
 # @brief Returns the size (height, width) of the raster.
 #
 # @return The size (height, width) of the raster or an empty list if
 # no part of the GDAL raster has yet been cached.
+#*
 sub size {
     my $self = shift;
     my($i, $j) = @_;
@@ -905,10 +886,11 @@ sub size {
     }
 }
 
-## @method $cell_size()
+#** @method $cell_size()
 # 
 # @brief Returns the cell size.
 # @return Cell size, i.e., the length of the cell edge in raster scale.
+#*
 sub cell_size {
     my($self, %o) = @_;
     if ($self->{GDAL}) {
@@ -922,12 +904,13 @@ sub cell_size {
     }
 }
 
-## @method $nodata_value($value)
+#** @method $nodata_value($value)
 #
 # @brief Get or set the value used to denote nodata values. 
 # @param[in] value (optional) Value that represents \a nodata in the
 # raster. Use undef for unsetting the nodata value.
 # @return the value for nodata if called without parameter.
+#*
 sub nodata_value {
     my $self = shift;
     my $nodata_value;
@@ -955,22 +938,17 @@ sub nodata_value {
     return $nodata_value;
 }
 
-## @method Geo::Raster min($param)
+#** @method Geo::Raster min($param)
 # 
-# @brief Set each cell to the minimum of its value and the parameter
-# value.
+# Depending on the parameter either set each cell to the minimum of
+# its value and the parameter value or to the minimum of its value and
+# the value of the respective cell in the parameter raster.
 # 
 # @param[in] param Number to compare with the raster cell values.
-# @return A new raster. In void context changes this raster.
-
-## @method Geo::Raster min(Geo::Raster second)
-# 
-# @brief Set each cell to the minimum of its value and the value of
-# the respective cell in the parameter raster.
-#
-# @param[in] second A raster, whose values are compared the values of
+# @param[in] param A raster, whose values are compared the values of
 # this raster.
 # @return A new raster. In void context changes this raster.
+#*
 sub min {
     my $self = shift;
     my $second = shift;
@@ -992,22 +970,17 @@ sub min {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster max($param)
+#** @method Geo::Raster max($param)
 # 
-# @brief Set each cell to the maximum of its value and the parameter
-# value.
+# Depending on the parameter either set each cell to the maximum of
+# its value and the parameter value or to the maximum of its value and
+# the value of the respective cell in the parameter raster.
 # 
 # @param[in] param Number to compare with the raster cell values.
-# @return A new raster. In void context changes this raster.
-
-## @method Geo::Raster max(Geo::Raster second)
-# 
-# @brief Set each cell to the maximum of its value and the value of
-# the respective cell in the parameter raster.
-#
-# @param[in] second A raster, whose values are compared the values of
+# @param[in] param A raster, whose values are compared the values of
 # this raster.
 # @return A new raster. In void context changes this raster.
+#*
 sub max {
     my $self = shift;
     my $second = shift;   
@@ -1029,9 +1002,10 @@ sub max {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster random()
+#** @method Geo::Raster random()
 # @brief Return a random part of values of the values of this raster.
 # @return a new raster. In void context changes the values of this raster.
+#*
 sub random {
     my $self = shift;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1039,7 +1013,7 @@ sub random {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster cross(Geo::Raster b)
+#** @method Geo::Raster cross(Geo::Raster b)
 # 
 # @brief Cross product of rasters.
 #
@@ -1061,6 +1035,7 @@ sub random {
 #
 # @param[in] b A reference to an another Geo::Raster object.
 # @return A new raster if requested.
+#*
 sub cross {
     my($a, $b) = @_;
     my $c = ral_grid_cross($a->{GRID}, $b->{GRID}); 
@@ -1068,9 +1043,15 @@ sub cross {
     $a->_new_grid($c) if $c;
 }
 
-## @method Geo::Raster if(Geo::Raster b, Geo::Raster c)
+#** @method Geo::Raster if(Geo::Raster b, Geo::Raster c, Geo::Raster d)
 # 
 # @brief If...then statement construct for rasters.
+#
+# @param[in] b Raster, whose values are used as boolean values.
+# @param[in] c Value raster, reference to a hash, or value.
+# @param[in] d (optional) Value raster, reference to a hash, or value.
+# @return a raster whose values are the results of the if
+# statement. In void context changes the values of this raster.
 #
 # Example of usage:
 # @code
@@ -1096,15 +1077,6 @@ sub cross {
 # for all cells k and keys key: if (b[k]==key) then a[k]=c[key]
 # @endcode
 #
-# @param[in] b Raster, whose values are used as boolean values.
-# @param[in] c Value raster, reference to a hash, or value.
-# @return a raster whose values are the results of the if
-# statement. In void context changes the values of this raster.
-
-## @method Geo::Raster if(Geo::Raster b, Geo::Raster c, Geo::Raster d)
-# 
-# @brief If...then...else statement construct for rasters.
-#
 # Example of usage:
 # @code
 # $a->if($b, $c, $d);
@@ -1129,12 +1101,7 @@ sub cross {
 # @code
 # for all cells k and keys key: if (b[k]==key) then a[k]=c[key] else a[k]=d[key]
 # @endcode
-#
-# @param[in] b Raster, whose values are used as boolean values.
-# @param[in] c Value raster, reference to a hash, or value.
-# @param[in] d Value raster, reference to a hash, or value.
-# @return a raster whose values are the results of the if
-# statement. In void context changes the values of this raster.
+#*
 sub if {
     my $a = shift;
     my $b = shift;    
@@ -1173,7 +1140,7 @@ sub if {
     return $a if defined wantarray;
 }
 
-## @method Geo::Raster bufferzone($z, $w)
+#** @method Geo::Raster bufferzone($z, $w)
 #
 # @brief Creates buffer zones around cells having the given value
 #
@@ -1184,6 +1151,7 @@ sub if {
 # @param[in] z Denotes cell values for which the bufferzone is computed.
 # @param[in] w Width of the bufferzone.
 # @note Defined only for integer rasters.
+#*
 sub bufferzone {
     my($self, $z, $w) = @_;
     croak "method usage: bufferzone($z, $w)" unless defined($w);
@@ -1195,13 +1163,14 @@ sub bufferzone {
     }
 }
 
-## @method Geo::Raster distances()
+#** @method Geo::Raster distances()
 #
 # @brief Computes and stores into nodata cells the distance
 # (in world units) to the nearest data cell.
 # @return If a return value is wanted, then the method returns a new raster with 
 # values only in this rasters \a nodata cells having the distance
 # to the nearest data cell. 
+#*
 sub distances {
     my($self) = @_;
     if (defined wantarray) {
@@ -1212,7 +1181,7 @@ sub distances {
     }
 }
 
-## @method Geo::Raster directions()
+#** @method Geo::Raster directions()
 # 
 # @brief Computes and stores into nodata cells the direction to the nearest 
 # data cell into nodata cells.
@@ -1222,6 +1191,7 @@ sub distances {
 # @return If a return value is wanted, then the method returns a new raster, with 
 # values only in this rasters \a nodata cells, having the direction
 # to the nearest data cell. 
+#*
 sub directions {
     my($self) = @_;
     if (defined wantarray) {
@@ -1232,37 +1202,32 @@ sub directions {
     }
 }
 
-## @method Geo::Raster clip($i1, $j1, $i2, $j2)
+#** @method Geo::Raster clip($i1, $j1, $i2, $j2)
 # 
-# @brief Clips a part of the raster according the given rectangle.
+# @brief Clips a part of the raster according to a given rectangle or
+# the real world boundaries of a given raster.
 #
 # Example of clipping a raster:
 # @code
 # $g2 = $g1->clip($i1, $j1, $i2, $j2);
 # @endcode
 # 
-# @param[in] i1 Upper left corners i-coordinate of the rectangle to clip.
-# @param[in] j1 Upper left corners j-coordinate of the rectangle to clip.
-# @param[in] i2 Bottom right corners i-coordinate of the rectangle to clip.
-# @param[in] j2 Bottom right corners j-coordinate of the rectangle to clip.
-# @return If a return value is wanted, then the method returns a new raster with
-# size defined by the parameters.
-
-## @method Geo::Raster clip(Geo::Raster area_to_clip)
-# 
-# @brief Clips a part of the raster according the given rasters real 
-# world boundaries.
-#
 # Example of clipping a raster:
 # @code
 # $g2 = $g1->clip($g3);
 # @endcode
 # The example clips from $g1 a piece which is overlayable with $g3. 
 # If there is no lvalue, $g1 is clipped.
-# 
+#
+# @param[in] i1 Upper left corners i-coordinate of the rectangle to clip.
+# @param[in] j1 Upper left corners j-coordinate of the rectangle to clip.
+# @param[in] i2 Bottom right corners i-coordinate of the rectangle to clip.
+# @param[in] j2 Bottom right corners j-coordinate of the rectangle to clip.
+#
 # @param[in] area_to_clip A Geo::Raster, which defines the area to clip.
 # @return If a return value is wanted, then the method returns a new raster with
-# size defined by the parameter.
+# size defined by the parameters.
+#*
 sub clip {
     my $self = shift;
     if (@_ == 4) {
@@ -1288,42 +1253,7 @@ sub clip {
     }
 }
 
-## @method Geo::Raster join(Geo::Raster second)
-# 
-# @brief The method joins the two given rasters.
-#
-# - The upper and left world boundaries must must have equal values.
-# - If both rasters are of type real, then the joined raster will have 
-# real as type.
-#
-# Example of joining
-# @code
-# $g3 = $g1->join($g2);
-# @endcode
-#
-# The joining is based on the world coordinates of the rasters. clip and
-# join without assignment clip or join the original raster, so
-# @code
-# $a->clip($i1, $j1, $i2, $j2);
-#
-# $a->join($b);
-# @endcode
-#
-# @param[in] second A raster to join to this raster. 
-# @return If a return value is wanted, then the method returns a new raster.
-# @exception The rasters have a different cell size.
-sub join {
-    my $self = shift;
-    my $second = shift;
-    if (defined wantarray) {
-        my $g = new Geo::Raster(ral_grid_join($self->{GRID}, $second->{GRID}));
-        return $g;
-    } else {
-        $self->_new_grid(ral_grid_join($self->{GRID}, $second->{GRID}));
-    }
-}
-
-## @method void assign(Geo::Raster src)
+#** @method void assign(Geo::Raster src)
 #
 # @brief Assigns the values from an another raster to this. 
 #
@@ -1335,12 +1265,13 @@ sub join {
 # @endcode
 #
 # @param[in] src Source raster from where the values looked up.
+#*
 sub assign {
     my($dest, $src) = @_;
     ral_grid_pick($dest->{GRID}, $src->{GRID});
 }
 
-## @method void clip_to(Geo::Raster like)
+#** @method void clip_to(Geo::Raster like)
 #
 # @brief Creates a raster like the given raster and assigns to that
 # raster values from this raster.
@@ -1348,6 +1279,7 @@ sub assign {
 # @param[in] like Raster that defines the window for the new raster.
 # @return a new raster. In void context copies to this raster and
 # discards the reference to a GDAL raster.
+#*
 sub clip_to {
     my($self, $like) = @_;
     if ($self->{GDAL}) {
@@ -1365,7 +1297,7 @@ sub clip_to {
     }
 }
 
-## @method listref array()
+#** @method listref array()
 #
 # @brief Creates a list of the rasters values.
 #
@@ -1378,27 +1310,27 @@ sub clip_to {
 # [[i0, j0, val0], [i1, j1, val1], [i2, j2, val2], ...].
 #
 # @return a reference to a list.
+#*
 sub array {
     my($self) = @_;
     my $a = ral_grid2list($self->{GRID});
     return $a;
 }
 
-## @method listref histogram(listref bins)
+#** @method listref histogram($bins)
 #
 # @brief Calculates the histogram values for the given bins.
+#
+# @param[in] bins Reference to an array having the border values for the bins.
+# @param[in] bins (optional) Amount of bins (disjoint categories). If not given 20 
+# is used as bins amount. There is no "best" number of bins, and different bin 
+# sizes can reveal different features of the data.
+# @return Reference to an array having amount of cells falling to each bin.
 #
 # Example of calculating a histogram:
 # @code
 # $histogram = $gd->histogram(\@bins);
 # @endcode
-#
-# @param[in] bins Reference to an array having the border values for the bins.
-# @return Reference to an array having amount of cells falling to each bin.
-
-## @method listref histogram($bins)
-#
-# @brief 
 #
 # Example of calculating a histogram, where all values plotted in to 10 equal 
 # sized intervals:
@@ -1406,10 +1338,7 @@ sub array {
 # $histogram = $gd->histogram(10);
 # @endcode
 #
-# @param[in] bins (optional) Amount of bins (disjoint categories). If not given 20 
-# is used as bins amount. There is no "best" number of bins, and different bin 
-# sizes can reveal different features of the data.
-# @return Reference to an array having amount of cells falling to each bin.
+#*
 sub histogram {
     my $self = shift;
     my $bins = shift;
@@ -1441,12 +1370,13 @@ sub histogram {
     }
 }
 
-## @method hashref contents()
+#** @method hashref contents()
 #
 # @brief Returns the histogram of an integer raster in a hash.
 #
 # @return a reference to a hash with cell values as keys and
 # cellcounts as values.
+#*
 sub contents {
     my $self = shift;
     if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID) {
@@ -1461,7 +1391,7 @@ sub contents {
     }
 }
 
-## @method Geo::Raster function($fct)
+#** @method Geo::Raster function($fct)
 #
 # @brief Evaluates a function and assigns the result to cell.
 #
@@ -1476,6 +1406,7 @@ sub contents {
 # etc. z is the current value in the cell and x, y, i, and j are
 # coordinates.
 # @return a new raster. In a void context changes this raster.
+#*
 sub function {
     my($self, $fct) = @_;
     my(undef, $M, $N, $cell_size, $minX, $minY, $maxX, $maxY) = $self->_attributes();
@@ -1494,9 +1425,21 @@ sub function {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster map(hashref map)
+#** @method Geo::Raster map(map)
 #
 # @brief Reclassify an integer raster.
+#
+# @param[in] map This is a reference to a hash of (key=>value)
+# mappings.  The key may be '*' (denoting a default value) or an
+# integer. The value is a new value for the cell. If the value is a
+# real number (i.e., contains '.') the result will be a real valued
+# raster.
+# @param[in] map This is a reference to a list of of pairs of
+# mappings.  The key may be '*' (denoting a default value), number, or
+# a reference to a list denoting a value range: [min_value,
+# max_value]. The value is a new value for the cell. If the value is a
+# real number (i.e., contains '.') the result is a real valued raster.
+# @return a new raster. In void context changes this raster.
 #
 # Example of mapping values
 # @code
@@ -1513,23 +1456,7 @@ sub function {
 # Maps cell values (keys in the map) in raster \a a to respective
 # values in map.  Works only for integer rasters.
 #
-# @param[in] map This is a reference to a hash of (key=>value)
-# mappings.  The key may be '*' (denoting a default value) or an
-# integer. The value is a new value for the cell. If the value is a
-# real number (i.e., contains '.') the result will be a real valued
-# raster.
-# @return a new raster. In void context changes this raster.
-
-## @method Geo::Raster map(@map)
-#
-# @brief Reclassify a raster.
-#
-# @param[in] map This is a reference to a list of of pairs of
-# mappings.  The key may be '*' (denoting a default value), number, or
-# a reference to a list denoting a value range: [min_value,
-# max_value]. The value is a new value for the cell. If the value is a
-# real number (i.e., contains '.') the result is a real valued raster.
-# @return a new raster. In void context changes this raster.
+#*
 sub map {
     my $self = shift;
     my @map;
@@ -1558,7 +1485,7 @@ sub map {
             $ext = 1;
             $to_real = 1;
         }
-    }  
+    }
     if (ral_grid_get_datatype($self->{GRID}) == $INTEGER_GRID and $to_real) {
         my $grid = ral_grid_create_copy($self->{GRID}, $REAL_GRID);
         if (defined wantarray) {
@@ -1610,35 +1537,47 @@ sub map {
     return $self if defined wantarray;
 }
 
-## @method hashref neighbors()
+#** @method hashref neighbors()
 #
 # @brief Compute a neighborhood hash for an integer raster.
 #
 # @return A reference to a hash of pairs (a=>b), where a is each cell
 # value and \a b is a reference to a list of values that are found
 # within the neighborhood of cells having the value \a a.
+#*
 sub neighbors {
     my $self = shift;
     $a = ral_grid_neighbors($self->{GRID});
     return $a;
 }
 
-1;
-__END__
+=head1 NAME
 
+Geo::Raster - Perl extension for geospatial rasters
+
+=head1 USAGE
+
+=head1 DESCRIPTION
 
 =head1 SEE ALSO
 
 Geo::GDAL
 
-This module should be discussed in https://list.hut.fi/mailman/listinfo/geo-perl
+=head1 DOCUMENTATION
 
-The homepage of this module is
-https://github.com/ajolma/geoinformatica
+The documentation of Geo::Raster is included into the source code in
+doxygen format. The documentation can be generated in HTML, LaTeX, and
+other formats using the doxygen executable and the perl doxygen
+filter.
+
+1) http://www.stack.nl/~dimitri/doxygen
+2) http://search.cpan.org/~jordan/Doxygen-Filter-Perl/
+3) http://ajolma.net/
+
 
 =head1 AUTHOR
 
-Ari Jolma, ari.jolma _at_ aalto.fi
+Ari Jolma, ari.jolma _at_ gmail.com
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -1649,3 +1588,5 @@ it according to the Artistic License 2.0.
 
 =cut
 
+1;
+__END__

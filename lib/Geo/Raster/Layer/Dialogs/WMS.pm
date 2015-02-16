@@ -1,5 +1,10 @@
+#** @file WMS.pm
+#*
+
+#** @class Geo::Raster::Layer::Dialogs::WMS
+# WMS data source
+#*
 package Geo::Raster::Layer::Dialogs::WMS;
-# @brief 
 
 use strict;
 use warnings;
@@ -11,44 +16,42 @@ use Geo::Raster::Layer::Dialogs::EditWMS;
 use XML::LibXML;
 #use Data::Dumper;
 
-## @ignore
 sub open {
     my($gui) = @_;
     my $self = { gui => $gui };
 
     # bootstrap:
     my($dialog, $boot) = Gtk2::Ex::Geo::Layer::bootstrap_dialog
-	($self, $gui, 'WMS_dialog', "Open from a WMS",
-	 {
+        ($self, $gui, 'WMS_dialog', "Open from a WMS",
+         {
              WMS_dialog => [delete_event => \&cancel, $self],
-	     WMS_connect_button => [clicked => \&connect, $self],
-	     WMS_new_button => [clicked => \&new, $self],
-	     WMS_edit_button => [clicked => \&edit, $self],
-	     WMS_delete_button => [clicked => \&delete, $self],
-	     WMS_apply_button => [clicked => \&apply, $self],
-	     WMS_cancel_button => [clicked => \&cancel, $self],
-	     WMS_ok_button => [clicked => \&ok, $self],
-	 },
-	 [
-	  'WMS_combobox',
-	  ]
-	);
+             WMS_connect_button => [clicked => \&connect, $self],
+             WMS_new_button => [clicked => \&new, $self],
+             WMS_edit_button => [clicked => \&edit, $self],
+             WMS_delete_button => [clicked => \&delete, $self],
+             WMS_apply_button => [clicked => \&apply, $self],
+             WMS_cancel_button => [clicked => \&cancel, $self],
+             WMS_ok_button => [clicked => \&ok, $self],
+         },
+         [
+          'WMS_combobox',
+          ]
+        );
     if ($boot) {
-	set_connections($self);
-	my $tree_view = $dialog->get_widget('WMS_treeview');
-	my $tree_store = Gtk2::TreeStore->new(qw/Glib::String/);
-	$tree_view->set_model($tree_store);
-	my $cell = Gtk2::CellRendererText->new;
-	my $tree_column = Gtk2::TreeViewColumn->new_with_attributes("Title", $cell, text => 0);
-	$tree_column->{column_number} = 0;
-	$tree_view->append_column($tree_column);
-	my $selection = $tree_view->get_selection;
-	$selection->set_mode('multiple');
+        set_connections($self);
+        my $tree_view = $dialog->get_widget('WMS_treeview');
+        my $tree_store = Gtk2::TreeStore->new(qw/Glib::String/);
+        $tree_view->set_model($tree_store);
+        my $cell = Gtk2::CellRendererText->new;
+        my $tree_column = Gtk2::TreeViewColumn->new_with_attributes("Title", $cell, text => 0);
+        $tree_column->{column_number} = 0;
+        $tree_view->append_column($tree_column);
+        my $selection = $tree_view->get_selection;
+        $selection->set_mode('multiple');
     }
 
 }
 
-##@ignore
 sub set_connections {
     my $self = pop;
     my $combo = $self->{WMS_dialog}->get_widget('WMS_combobox');
@@ -59,14 +62,13 @@ sub set_connections {
     my $i = 0;
     my $active = 0;
     for my $src (sort keys %{$self->{gui}{resources}{WMS}}) {
-	$model->set($model->append, 0, $src);
-	$active = $i if $name and $src eq $name;
-	$i++;
+        $model->set($model->append, 0, $src);
+        $active = $i if $name and $src eq $name;
+        $i++;
     }
     $combo->set_active($active);
 }
 
-##@ignore
 sub connection {
     my $self = pop;
     my $combo = $self->{WMS_dialog}->get_widget('WMS_combobox');
@@ -75,7 +77,6 @@ sub connection {
     return $model->get($iter);
 }
 
-##@ignore
 sub connect {
     my $self = pop;
     my $name = connection($self);
@@ -85,10 +86,10 @@ sub connect {
     $curl->setopt($curl->CURLOPT_HEADER, 1);
     my $url = $connection->[0].'?service=WMS&version=1.1.1&request=GetCapabilities';
     if ($connection->[1]) {
-	# http(s)://username:password@domain.ext
-	my($protocol) = $url =~ /^(https?:\/\/)/;
-	$url =~ s/^(https?:\/\/)//;
-	$url = $protocol.$connection->[1].':'.$connection->[2].'@'.$url;
+        # http(s)://username:password@domain.ext
+        my($protocol) = $url =~ /^(https?:\/\/)/;
+        $url =~ s/^(https?:\/\/)//;
+        $url = $protocol.$connection->[1].':'.$connection->[2].'@'.$url;
     }
     $curl->setopt($curl->CURLOPT_URL, $url);
     my $xml;
@@ -97,38 +98,38 @@ sub connect {
     
     my $msg;
     if ($retcode != 0) {
-	$msg = "Error in transfer: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n";
+        $msg = "Error in transfer: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n";
     } else {
-	my %defs = ( 
-	    200 => 'OK',
-	    301 => 'Moved Permanently',
-	    400 => 'Bad Request',
-	    401 => 'Unauthorized',
-	    402 => 'Payment Required',
-	    403 => 'Forbidden',
-	    404 => 'Not Found',
-	    500 => 'Internal Server Error',
-	    501 => 'Not Implemented',
-	    503 => 'Service Unavailable',
-	    505 => 'HTTP Version Not Supported'
-	    );
-	$msg = $defs{$curl->getinfo($curl->CURLINFO_HTTP_CODE)};
-	$msg = '' if $msg eq 'OK';
+        my %defs = ( 
+            200 => 'OK',
+            301 => 'Moved Permanently',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented',
+            503 => 'Service Unavailable',
+            505 => 'HTTP Version Not Supported'
+            );
+        $msg = $defs{$curl->getinfo($curl->CURLINFO_HTTP_CODE)};
+        $msg = '' if $msg eq 'OK';
     }
     if ($msg) {
-	my $msgbox = Gtk2::MessageDialog->new(undef,
-					      'destroy-with-parent',
-					      'info',
-					      'close',
-					      $msg);
-	$msgbox->run;
-	$msgbox->destroy;
-	return;
+        my $msgbox = Gtk2::MessageDialog->new(undef,
+                                              'destroy-with-parent',
+                                              'info',
+                                              'close',
+                                              $msg);
+        $msgbox->run;
+        $msgbox->destroy;
+        return;
     }
 
     my @xml = split /\n/, $xml;
     while (not $xml[0] =~ /^<WMT_MS_Capabilities/) {
-	shift @xml;
+        shift @xml;
     }
     my $capabilities = XML::LibXML->load_xml(string => "<xml>@xml</xml>");
 
@@ -137,22 +138,22 @@ sub connect {
     my @titles;
     my $data = \@titles;
     for my $layer ($capabilities->findnodes('//Layer')) {
-	my @p = split /\//,$layer->nodePath;
-	my $d = @p;
-	my $title = $layer->findnodes('./Title')->to_literal;
+        my @p = split /\//,$layer->nodePath;
+        my $d = @p;
+        my $title = $layer->findnodes('./Title')->to_literal;
 
-	if (($depth < 0) or ($depth == @p)) {
-	    $depth = @p;
-	} elsif ($depth < @p) { # new child
-	    $depth = @p;
-	    $parent = $data;
-	    $data->[$#$data][1] = [];
-	    $data = $data->[$#$data][1];
-	} else { # back up
-	    $depth = @p;
-	    $data = $parent;
-	}
-	push @$data, [$title];
+        if (($depth < 0) or ($depth == @p)) {
+            $depth = @p;
+        } elsif ($depth < @p) { # new child
+            $depth = @p;
+            $parent = $data;
+            $data->[$#$data][1] = [];
+            $data = $data->[$#$data][1];
+        } else { # back up
+            $depth = @p;
+            $data = $parent;
+        }
+        push @$data, [$title];
     }
 
     my $tree_view = $self->{WMS_dialog}->get_widget('WMS_treeview');
@@ -160,7 +161,7 @@ sub connect {
     $tree_store->clear;
 
     for my $title (@titles) {
-	add_to_tree($title, $tree_store);
+        add_to_tree($title, $tree_store);
     }
 
 }
@@ -170,35 +171,33 @@ sub add_to_tree {
     my $iter_child = $tree_store->append($iter);
     $tree_store->set($iter_child, 0 => $data->[0]);
     if ($data->[1]) {
-	for my $data_child (@{$data->[1]}) {
-	    add_to_tree($data_child, $tree_store, $iter_child);
-	}
+        for my $data_child (@{$data->[1]}) {
+            add_to_tree($data_child, $tree_store, $iter_child);
+        }
     }
 }
 
-##@ignore
 sub new {
     my $self = pop;
     my $dialog = Geo::Raster::Layer::Dialogs::EditWMS::open($self->{gui}, "New WMS connection");
     my $ret;
     while (1) {
-	$ret = $dialog->get_widget('WMS_edit_dialog')->run();
-	last unless $ret eq 'apply';
+        $ret = $dialog->get_widget('WMS_edit_dialog')->run();
+        last unless $ret eq 'apply';
     }
     if ($ret eq 'ok') {
-	my $name = $dialog->get_widget('WMS_edit_name_entry')->get_text();
-	$self->{gui}{resources}{WMS}{$name} =
-	    [
-	     $dialog->get_widget('WMS_edit_URL_entry')->get_text(),
-	     $dialog->get_widget('WMS_edit_username_entry')->get_text(),
-	     $dialog->get_widget('WMS_edit_password_entry')->get_text()
-	    ];
-	set_connections($self);
+        my $name = $dialog->get_widget('WMS_edit_name_entry')->get_text();
+        $self->{gui}{resources}{WMS}{$name} =
+            [
+             $dialog->get_widget('WMS_edit_URL_entry')->get_text(),
+             $dialog->get_widget('WMS_edit_username_entry')->get_text(),
+             $dialog->get_widget('WMS_edit_password_entry')->get_text()
+            ];
+        set_connections($self);
     }
     $dialog->get_widget('WMS_edit_dialog')->destroy();
 }
 
-##@ignore
 sub edit {
     my $self = pop;
     my $dialog = Geo::Raster::Layer::Dialogs::EditWMS::open($self->{gui}, "Edit WMS connection");
@@ -211,21 +210,20 @@ sub edit {
     $dialog->get_widget('WMS_edit_password_entry')->set_text($connection->[2]);
     my $ret;
     while (1) {
-	$ret = $dialog->get_widget('WMS_edit_dialog')->run();
-	last unless $ret eq 'apply';
+        $ret = $dialog->get_widget('WMS_edit_dialog')->run();
+        last unless $ret eq 'apply';
     }
     if ($ret eq 'ok') {
-	$self->{gui}{resources}{WMS}{$name} =
-	    [
-	     $dialog->get_widget('WMS_edit_URL_entry')->get_text(),
-	     $dialog->get_widget('WMS_edit_username_entry')->get_text(),
-	     $dialog->get_widget('WMS_edit_password_entry')->get_text()
-	    ];
+        $self->{gui}{resources}{WMS}{$name} =
+            [
+             $dialog->get_widget('WMS_edit_URL_entry')->get_text(),
+             $dialog->get_widget('WMS_edit_username_entry')->get_text(),
+             $dialog->get_widget('WMS_edit_password_entry')->get_text()
+            ];
     }
     $dialog->get_widget('WMS_edit_dialog')->destroy();
 }
 
-##@ignore
 sub delete {
     my $self = pop;
     my $name = connection($self);
@@ -233,13 +231,11 @@ sub delete {
     set_connections($self);
 }
 
-##@ignore
 sub cancel {
     my $self = pop;
     $self->{WMS_dialog}->get_widget('WMS_dialog')->destroy;
 }
 
-##@ignore
 sub apply {
     my $self = pop;
     my $tree_view = $self->{WMS_dialog}->get_widget('WMS_treeview');
@@ -249,14 +245,13 @@ sub apply {
     return unless @rows;
     my @titles;
     for my $row (@rows) {
-	my $iter = $tree_store->get_iter_from_string($row->to_string);
-	my $title = $tree_store->get_value($iter, 0);
-	push @titles, $title;
+        my $iter = $tree_store->get_iter_from_string($row->to_string);
+        my $title = $tree_store->get_value($iter, 0);
+        push @titles, $title;
     }
     add_layer($self, @titles);
 }
 
-##@ignore
 sub add_layer {
     my($self, $title) = @_;
 
@@ -279,10 +274,10 @@ sub add_layer {
     while (1) {
         my $desc = 'SUBDATASET_'.$i.'_DESC';
         last unless $metadata->{$desc};
-	if ($metadata->{$desc} eq $title) {
-	    $choice = $i;
-	    last;
-	}
+        if ($metadata->{$desc} eq $title) {
+            $choice = $i;
+            last;
+        }
         $i++;
     }
     
@@ -309,7 +304,6 @@ sub add_layer {
     $self->{gui}->{overlay}->render;
 }
 
-##@ignore
 sub ok {
     my $self = pop;
     apply($self);

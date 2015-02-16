@@ -1,16 +1,19 @@
-## @class Geo::Raster::Image
+#** @file Image.pm
 # @brief Adds graphics, image analysis etc. methods to Geo::Raster.
+#*
+
 package Geo::Raster;
 
 use strict;
 use Scalar::Util 'blessed';
 
-## @method Geo::Raster frame($with)
+#** @method Geo::Raster frame($with)
 #
 # @brief Change the borders to the given value.
 # 
 # @param[in] with A value that is given to the border cells.
 # @return a new raster. In void context changes this raster.
+#*
 sub frame {
     my $self = shift;
     my $with = shift;
@@ -28,7 +31,7 @@ sub frame {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster convolve(listref kernel)
+#** @method Geo::Raster convolve(listref kernel)
 # 
 # @brief Compute a convolution.
 # @param[in] kernel The convolution kernel is a list of lists, i.e., a
@@ -36,6 +39,7 @@ sub frame {
 # calculated. The table is read from left to right, top to down, and
 # its center element is the cell for which the value is computed.
 # @return a new raster. In void context changes this raster.
+#*
 sub convolve {
     my $self = shift;
     my $mask = shift;
@@ -55,7 +59,7 @@ sub convolve {
     }
 }
 
-## @method listref line(@p, @q, $value)
+#** @method listref line(@p, @q, $value)
 #
 # @brief Get or set the cell values along a line.
 # 
@@ -65,6 +69,7 @@ sub convolve {
 # @return the values of the cells along the line if value is not
 # given. The returned value is a reference to an anonymous array of
 # the form: (\@cell, value, \@cell, value, ...).
+#*
 sub line {
     my($self, $i1, $j1, $i2, $j2, $pen) = @_;
     unless (defined $pen) {
@@ -74,7 +79,8 @@ sub line {
     }
 }
 
-## @method listref transect(Geo::GDAL::Geometry geom, $delta) 
+#** @method listref transect(Geo::GDAL::Geometry geom, $delta) 
+#*
 sub transect {
     my($self, $geom, $delta) = @_;
     croak "usage: \$raster->transect(\$geometry, \$delta)" 
@@ -125,7 +131,7 @@ sub transect {
     return \@transect;
 }
 
-## @method listref rect(@p, @q, $value)
+#** @method listref rect(@p, @q, $value)
 #
 # @brief Get or set the cells of a rectangle.
 # @param[in] p The upper left corner cell.
@@ -134,6 +140,7 @@ sub transect {
 # @return the values of the cells within the rectangle if value is not
 # given. The returned value is a reference to an anonymous array of
 # the form: (\@cell, value, \@cell, value, ...).
+#*
 sub rect {
     my($self, $i1, $j1, $i2, $j2, $pen) = @_;
     unless (defined $pen) {
@@ -143,7 +150,7 @@ sub rect {
     }
 }
 
-## @method listref circle(@center, $r, $value)
+#** @method listref circle(@center, $r, $value)
 #
 # @brief Get or set the cells within a circle.
 # 
@@ -153,6 +160,7 @@ sub rect {
 # @return the values of the cells within the circle if value is not
 # given. The returned value is a reference to an anonymous array of
 # the form: (\@cell, value, \@cell, value, ...).
+#*
 sub circle {
     my($self, $i, $j, $r, $pen) = @_;
     unless (defined $pen) {
@@ -162,7 +170,7 @@ sub circle {
     }
 }
 
-## @method void floodfill(@cell, $value, $connectivity)
+#** @method void floodfill(@cell, $value, $connectivity)
 #
 # @brief Floodfill a zone.
 #
@@ -170,13 +178,14 @@ sub circle {
 # @param[in] value New value for the zone.
 # @param[in] connectivity (optional). Connectivity between cells,
 # either 4 or 8. Default is 8.
+#*
 sub floodfill {
     my($self, $i, $j, $pen, $connectivity) = @_;
     $connectivity = 8 unless $connectivity;
     ral_grid_floodfill($self->{GRID}, $i, $j, $pen, $connectivity);
 }
 
-## @method Geo::Raster thin(%opt)
+#** @method Geo::Raster thin(%opt)
 #
 # @brief Thin lines in the raster.
 #
@@ -214,6 +223,7 @@ sub floodfill {
 # int(width/2).
 # @return a new raster. In void context changes this raster.
 # @note The thinned raster must be a binary raster.
+#*
 sub thin {
     my($self, %opt) = @_;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -311,7 +321,7 @@ sub thin {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster borders(%params)
+#** @method Geo::Raster borders(%params)
 #
 # @brief Borders between zones.
 # 
@@ -322,6 +332,7 @@ sub thin {
 # - <I>method</I> => string (optional). Either simple or
 # recursive. Default is recursive.
 # @return a new raster. In void context changes this raster.
+#*
 sub borders {
     my($self, %opt) = @_;
     $opt{method} = 'recursive' unless $opt{method};
@@ -344,7 +355,7 @@ sub borders {
     }
 }
 
-## @method Geo::Raster areas($k)
+#** @method Geo::Raster areas($k)
 #
 # @brief Marks if cell belong to an area.
 #
@@ -353,6 +364,7 @@ sub borders {
 # By default the value is 3, in which case the smallest area is 2*2 cells.
 # @return a new raster. In void context changes this raster.
 # @note The grid has to have as datatype integer.
+#*
 sub areas {
     my $self = shift;
     my $k = shift;
@@ -365,7 +377,7 @@ sub areas {
     }
 }
 
-## @method Geo::Raster connect()
+#** @method Geo::Raster connect()
 #
 # @brief Connects broken lines.
 #
@@ -389,6 +401,7 @@ sub areas {
 #
 # @return a new raster. In void context changes this raster.
 # @note The grid has to have as datatype integer.
+#*
 sub connect {
     my $self = shift;
     if (defined wantarray) {
@@ -399,7 +412,7 @@ sub connect {
     }
 }
 
-## @method Geo::Raster number_areas($connectivity)
+#** @method Geo::Raster number_areas($connectivity)
 #
 # @brief Numbers all areas with a unique integer number, even if some areas have 
 # the same values.
@@ -407,6 +420,7 @@ sub connect {
 # or 8. If connectivity is not given then 8-connectivity is used.
 # @return a new raster. In void context changes this raster.
 # @note The grid has to have as datatype integer.
+#*
 sub number_areas {
     my($self, $connectivity) = @_;
     $connectivity = 8 unless $connectivity;
@@ -418,7 +432,7 @@ sub number_areas {
     }
 }
 
-## @method Geo::Raster transform(listref tr, $M, $N, $pick, $value)
+#** @method Geo::Raster transform(listref tr, $M, $N, $pick, $value)
 #
 # @brief Transformation (of type conversion, because just a mathematical 
 # transformation) of the raster grid.
@@ -467,6 +481,7 @@ sub number_areas {
 # @param[in] value (optional) Should be given if pick method "count" is used, in 
 # which case the cells will include the amount of values.
 # @return a new raster. In void context changes this raster.
+#*
 sub transform {
     my($self, $tr, $M, $N, $pick, $value) = @_;
     $pick = $pick || 0;

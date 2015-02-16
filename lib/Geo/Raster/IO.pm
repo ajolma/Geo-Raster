@@ -1,13 +1,13 @@
-## @class Geo::Raster::IO
+#** @file Dialogs.pm
 # @brief Adds input/output methods into Geo::Raster
+#*
+
 package Geo::Raster;
 
 use strict;
 use Config; # For byteorder
 use Scalar::Util 'blessed';
 
-## @ignore
-# internal
 sub gdal_open {
     my($self, %params) = @_;
     my $dataset;
@@ -36,12 +36,13 @@ sub gdal_open {
     return 1;
 }
 
-## @method Geo::GDAL::Dataset dataset()
+#** @method Geo::GDAL::Dataset dataset()
 #
 # @brief Return a dataset object associated with the raster.
 #
 # @return the underlying GDAL dataset or, in the case of pure libral
 # raster, create a GDAL memory dataset and return it.
+#*
 sub dataset {
     my($self) = @_;
     return $self->{GDAL}->{dataset} if $self->{GDAL};
@@ -63,13 +64,14 @@ sub dataset {
     return $ds;
 }
 
-## @method Geo::GDAL::Band band()
+#** @method Geo::GDAL::Band band()
 #
 # @brief Return a band object associated with the raster.
 #
 # @return the band from the underlying GDAL dataset that is used, or,
 # in the case of pure libral raster, create a GDAL memory dataset and
 # return the (only) band of it.
+#*
 sub band {
     my $self = shift;
     if ($self->{GDAL}) {
@@ -80,7 +82,7 @@ sub band {
     return $ds->Band(1);
 }
 
-## @method Geo::Raster cache($min_x, $min_y, $max_x, $max_y, $cell_size)
+#** @method Geo::Raster cache($min_x, $min_y, $max_x, $max_y, $cell_size)
 #
 # @brief Creates a new grid from the GDAL source.
 #
@@ -100,8 +102,9 @@ sub band {
 # @param[in] cell_size Length of the border of the cells.
 # @return Geo::Raster.
 # @exception The raster object does not have a GDAL source.
+#*
 
-## @method Geo::Raster cache(Geo::Raster model_grid)
+#** @method Geo::Raster cache(Geo::Raster model_grid)
 #
 # @brief Creates a new grid from the GDAL source.
 #
@@ -112,8 +115,9 @@ sub band {
 # which is used as a model for world boundaries and cell size.
 # @return Geo::Raster.
 # @exception The parameter is not a Geo::Raster object.
+#*
 
-## @method Geo::Raster cache()
+#** @method Geo::Raster cache()
 #
 # @brief Creates a new grid from the GDAL source.
 #
@@ -121,6 +125,7 @@ sub band {
 # - Otherwise works as above.
 #
 # @return Geo::Raster.
+#*
 sub cache {
     my $self = shift;
     croak "no GDAL" unless $self->{GDAL};
@@ -188,6 +193,7 @@ sub cache {
 #
 # @brief Checks if save with the same filename would overwrite an existing file.
 # @param[in] filename Name of file without the file type extension.
+#*
 sub exists {
     my $filename = @_ == 2 ? $_[1] : $_[0]; # can be used also as object method
     # better safe than sorry:
@@ -195,7 +201,7 @@ sub exists {
         -e "$filename.hdr" or -e "$filename.HDR";
 }
 
-## @method void save($filename, $format)
+#** @method void save($filename, $format)
 #
 # @brief Save libral raster into a pair of hdr and bil files.
 #
@@ -210,6 +216,7 @@ sub exists {
 # is saved as such.
 # @exception The given filename is not valid, or the file does not open with 
 # writing permissions.
+#*
 sub save {
     my($self, $filename, $format) = @_;
 
@@ -261,21 +268,23 @@ sub save {
     ral_grid_write($self->{GRID}, $filename.'.bil');
 }
 
-## @method void print()
+#** @method void print()
 #
 # @brief Prints the values of the raster grid into stdout.
+#*
 sub print {
     my($self) = @_;
     ral_grid_print($self->{GRID});
 }
 
-## @method void dump($to)
+#** @method void dump($to)
 #
 # @brief Prints the data (but not metadata, like size or other attributes of the 
 # grid) of the raster into a file or stdout.
 # @param[in] to (optional). Filename or a filehandle.
 # @exception The given filename is not valid, or the file does not open with 
 # writing permissions.
+#*
 sub dump {
     my($self, $to) = @_;
     my $close;
@@ -295,13 +304,14 @@ sub dump {
     close($to) if $close;
 }
 
-## @method void restore($from)
+#** @method void restore($from)
 #
 # @brief Reads the data (but not metadata, like size or other attributes of the 
 # grid) of the raster from a file or stdin.
 # @param[in] from (optional) filename or a filehandle. If not given data is read 
 # from stdin.
 # @exception The given filename is not valid, or the file does not open.
+#*
 sub restore {
     my($self, $from) = @_;
     my $close;
@@ -322,7 +332,7 @@ sub restore {
     close($from) if $close;
 }
 
-## @method void save_as_image($filename, $type, listref option_keys, listref option_values)
+#** @method void save_as_image($filename, $type, listref option_keys, listref option_values)
 #
 # @brief Saves the grid as image (*.jpeg, *.png, *.tiff, *.ico or *.bmp).
 #
@@ -331,6 +341,7 @@ sub restore {
 # Supported are jpeg, png, tiff, ico and bmp.
 # @param[in] option_keys (optional). Name of options to set. Can be used for passing metadata.
 # @param[in] option_values (optional). Values for the named options.
+#*
 sub save_as_image {
     my($self, $filename, $type, $option_keys, $option_values) = @_;
     my $b = ral_pixbuf_create_from_grid($self->{GRID});

@@ -1,9 +1,11 @@
-## @class Geo::Raster::Operations
-# @brief Adds operations into Geo::Raster and overloads them to operators.
+#** @file Dialogs.pm
+# @brief Adds overloaded operations to Geo::Raster
 # @note Many methods may convert an integer raster into a floating
 # point raster if the operation requires.
 # @note All operations, which involve more than one raster, require
 # that the rasters are overlayable.
+#*
+
 package Geo::Raster;
 
 use strict;
@@ -43,28 +45,26 @@ use overload (
               );
 use Scalar::Util 'blessed';
 
-## @ignore
 sub as_string {
     my $self = shift;
     return $self;
 }
 
-## @ignore
 sub bool {
     return 1;
 }
 
-## @ignore
 sub shallow_copy {
     my $self = shift;
     return $self;
 }
 
-## @method Geo::Raster neg()
+#** @method Geo::Raster neg()
 #
 # @brief Unary minus. Multiplies this raster with -1.
 #
 # @return A negated (multiplied by -1) raster.
+#*
 sub neg {
     my $self = shift;
     my $copy = Geo::Raster->new($self);
@@ -72,7 +72,6 @@ sub neg {
     return $copy;
 }
 
-## @ignore
 sub _typeconversion {
     my($self,$other) = @_;
     my $type = ral_grid_get_datatype($self->{GRID});
@@ -99,7 +98,7 @@ sub _typeconversion {
 }
 
 
-## @method Geo::Raster plus($value)
+#** @method Geo::Raster plus($value)
 #
 # @brief Adds a number globally to the raster.
 #
@@ -115,8 +114,9 @@ sub _typeconversion {
 # @param[in] value An integer or a floating point number to add to the
 # cell values of this raster.
 # @return the resulting raster.
+#*
 
-## @method Geo::Raster plus(Geo::Raster second)
+#** @method Geo::Raster plus(Geo::Raster second)
 #
 # @brief Adds a raster to this raster.
 #
@@ -131,6 +131,7 @@ sub _typeconversion {
 #
 # @param[in] second A raster.
 # @return the resulting raster.
+#*
 sub plus {
     my($self, $second) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -148,7 +149,7 @@ sub plus {
     return $copy;
 }
 
-## @method Geo::Raster minus($value, $reversed)
+#** @method Geo::Raster minus($value, $reversed)
 #
 # @brief Subtracts a value globally from this raster.
 #
@@ -166,8 +167,9 @@ sub plus {
 # computation instead of raster - value. When operator '-' is used,
 # this value is automatically set by Perl when appropriate.
 # @return the resulting raster.
+#*
 
-## @method Geo::Raster minus(Geo::Raster second, $reversed)
+#** @method Geo::Raster minus(Geo::Raster second, $reversed)
 #
 # @brief Subtracts a raster from this raster.
 #
@@ -185,6 +187,7 @@ sub plus {
 # computation instead of raster - value. When operator '-' is used,
 # this value is automatically set by Perl when appropriate.
 # @return the resulting raster.
+#*
 sub minus {
     my($self, $second, $reversed) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -210,7 +213,7 @@ sub minus {
     return $copy;
 }
 
-## @method Geo::Raster times($value)
+#** @method Geo::Raster times($value)
 #
 # @brief Multiplies the cells of this raster with a value.
 #
@@ -225,8 +228,9 @@ sub minus {
 #
 # @param[in] value The multiplier.
 # @return a new raster.
+#*
 
-## @method Geo::Raster times(Geo::Raster second)
+#** @method Geo::Raster times(Geo::Raster second)
 #
 # @brief Multiplies the cell values of this raster with the cell values of another raster.
 #
@@ -246,6 +250,7 @@ sub minus {
 #
 # @param[in] second The multiplier raster.
 # @return a new raster.
+#*
 sub times {
     my($self, $second) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -262,7 +267,7 @@ sub times {
     return $copy;
 }
 
-## @method Geo::Raster over($value, $reversed)
+#** @method Geo::Raster over($value, $reversed)
 #
 # @brief Divides the cell values of this raster with a value.
 #
@@ -280,8 +285,9 @@ sub times {
 # computation instead of raster / value. When operator '/' is used,
 # this value is automatically set by Perl when appropriate.
 # @return the resulting raster.
+#*
 
-## @method Geo::Raster over(Geo::Raster second, $reversed)
+#** @method Geo::Raster over(Geo::Raster second, $reversed)
 #
 # @brief Divides this raster with another raster.
 #
@@ -303,6 +309,7 @@ sub times {
 # computation instead of raster / value. When operator '/' is used,
 # this value is automatically set by Perl when appropriate.
 # @return the resulting raster.
+#*
 sub over {
     my($self, $second, $reversed) = @_;
     my $copy = new Geo::Raster datatype=>$Geo::Raster::REAL_GRID, copy=>$self;
@@ -327,7 +334,6 @@ sub over {
     return $copy;
 }
 
-## @ignore
 sub over2 {
     my($self, $second, $reversed) = @_;
     my $copy;
@@ -362,7 +368,7 @@ sub over2 {
     return $copy;
 }
 
-## @method Geo::Raster modulo($value, $reversed)
+#** @method Geo::Raster modulo($value, $reversed)
 #
 # @brief Computes the modulus (remainder of division, Perl operator %)
 # of this raster and an integer number.
@@ -382,8 +388,9 @@ sub over2 {
 # this value is automatically set by Perl when appropriate.
 # @note This raster must be an integer raster.
 # @return the resulting raster.
+#*
 
-## @method Geo::Raster modulo(Geo::Raster second, $reversed)
+#** @method Geo::Raster modulo(Geo::Raster second, $reversed)
 #
 # @brief Computes the modulus (remainder of division, Perl operator %)
 # of this raster and an integer raster.
@@ -403,6 +410,7 @@ sub over2 {
 # this value is automatically set by Perl when appropriate.
 # @note This raster must be an integer raster.
 # @return the resulting raster.
+#*
 sub modulo {
     my($self, $second, $reversed) = @_;
     my $copy = new Geo::Raster($self);
@@ -419,7 +427,7 @@ sub modulo {
     return $copy;
 }
 
-## @method Geo::Raster power($exponent, $reversed)
+#** @method Geo::Raster power($exponent, $reversed)
 #
 # @brief Computes the power (Perl operator **) of this raster and an
 # exponent.
@@ -438,8 +446,9 @@ sub modulo {
 # computation instead of raster ** exponent. When operator '**' is used,
 # this value is automatically set by Perl when appropriate.
 # @return the resulting raster.
+#*
 
-## @method Geo::Raster power(Geo::Raster exponent, $reversed)
+#** @method Geo::Raster power(Geo::Raster exponent, $reversed)
 #
 # @brief Computes the power (Perl operator **) of this raster an
 # exponent raster.
@@ -458,6 +467,7 @@ sub modulo {
 # computation instead of raster ** exponent. When operator '**' is used,
 # this value is automatically set by Perl when appropriate.
 # @return the resulting raster.
+#*
 sub power {
     my($self, $second, $reversed) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -476,7 +486,7 @@ sub power {
     return $copy;
 }
 
-## @method add($value)
+#** @method add($value)
 #
 # @brief Adds a number in-place to the cell values of this raster.
 #
@@ -490,8 +500,9 @@ sub power {
 # @endcode
 #
 # @param[in] value The number to add.
+#*
 
-## @method Geo::Raster add(Geo::Raster second)
+#** @method Geo::Raster add(Geo::Raster second)
 #
 # @brief Adds another raster to this raster.
 # 
@@ -505,6 +516,7 @@ sub power {
 # @endcode
 #
 # @param[in] second A raster to add.
+#*
 sub add {
     my($self, $second) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -523,7 +535,7 @@ sub add {
     return $self;
 }
 
-## @method Geo::Raster subtract($value)
+#** @method Geo::Raster subtract($value)
 #
 # @brief Subtracts a number from the cell values.
 #
@@ -537,8 +549,9 @@ sub add {
 # @endcode
 #
 # @param[in] value A number that is subtracted from all cells of this raster.
+#*
 
-## @method Geo::Raster subtract(Geo::Raster second)
+#** @method Geo::Raster subtract(Geo::Raster second)
 #
 # @brief Subtracts from the cell value the respective cell values of the given raster.
 #
@@ -553,6 +566,7 @@ sub add {
 #
 # @param[in] second A raster, whose cell values are to be subtracted
 # from the cell values of this raster.
+#*
 sub subtract {
     my($self, $second) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -570,7 +584,7 @@ sub subtract {
     return $self;
 }
 
-## @method Geo::Raster multiply_by($value)
+#** @method Geo::Raster multiply_by($value)
 #
 # @brief Multiplies the cell values of this raster with the given number.
 #
@@ -584,8 +598,9 @@ sub subtract {
 # @endcode
 #
 # @param[in] value The multiplier.
+#*
 
-## @method Geo::Raster multiply_by(Geo::Raster second)
+#** @method Geo::Raster multiply_by(Geo::Raster second)
 #
 # @brief Multiplies the cell values of this raster with the respective
 # cell values of the given raster.
@@ -600,6 +615,7 @@ sub subtract {
 # @endcode
 #
 # @param[in] second A raster.
+#*
 sub multiply_by {
     my($self, $second) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -617,7 +633,7 @@ sub multiply_by {
     return $self;
 }
 
-## @method Geo::Raster divide_by($value)
+#** @method Geo::Raster divide_by($value)
 #
 # @brief Divides the cell values of this raster with the given number.
 #
@@ -631,8 +647,9 @@ sub multiply_by {
 # @endcode
 #
 # @param[in] value A number.
+#*
 
-## @method Geo::Raster divide_by(Geo::Raster second)
+#** @method Geo::Raster divide_by(Geo::Raster second)
 #
 # @brief Divides the cell values of this raster with the respective
 # cell values of the other raster.
@@ -647,6 +664,7 @@ sub multiply_by {
 # @endcode
 #
 # @param[in] second A raster.
+#*
 sub divide_by {
     my($self, $second) = @_;
     $self->_new_grid(ral_grid_create_copy($self->{GRID}, $Geo::Raster::REAL_GRID));
@@ -662,7 +680,7 @@ sub divide_by {
     return $self;
 }
 
-## @method Geo::Raster modulus_with($value)
+#** @method Geo::Raster modulus_with($value)
 #
 # @brief Computes the modulus of each cell value and the given number
 # and assigns that to the cell.
@@ -678,8 +696,9 @@ sub divide_by {
 #
 # @param[in] value An integer number.
 # @note Defined only for integer rasters.
+#*
 
-## @method Geo::Raster modulus_with(Geo::Raster second)
+#** @method Geo::Raster modulus_with(Geo::Raster second)
 #
 # @brief Computes the modulus of each cell value of this raster and
 # the respective cell value of the given integer raster.
@@ -695,6 +714,7 @@ sub divide_by {
 #
 # @param[in] second An integer raster.
 # @note Defined only for integer rasters.
+#*
 sub modulus_with {
     my($self, $second) = @_;
     if (ref($second)) {
@@ -705,7 +725,7 @@ sub modulus_with {
     return $self;
 }
 
-## @method Geo::Raster to_power_of($power)
+#** @method Geo::Raster to_power_of($power)
 #
 # @brief Raises the cell values of this raster to the given power.
 # 
@@ -719,8 +739,9 @@ sub modulus_with {
 # @endcode
 #
 # @param[in] power The exponent.
+#*
 
-## @method Geo::Raster to_power_of(Geo::Raster second)
+#** @method Geo::Raster to_power_of(Geo::Raster second)
 #
 # @brief Raises the cell values to the power of the respective cell
 # values of the given raster.
@@ -735,6 +756,7 @@ sub modulus_with {
 # @endcode
 #
 # @param[in] second A raster, whose cell values are used as exponents.
+#*
 sub to_power_of {
     my($self, $second) = @_;
     my $datatype = $self->_typeconversion($second);
@@ -748,13 +770,14 @@ sub to_power_of {
     return $self;
 }
 
-## @method Geo::Raster atan2(Geo::Raster second)
+#** @method Geo::Raster atan2(Geo::Raster second)
 #
 # @brief Calculates at each cell the arc-tangent of this and the
 # second raster.
 #
 # @param[in] second A raster.
 # @return a new raster. In void context changes this raster.
+#*
 sub atan2 {
     my($self, $second) = @_;
     if (ref($self) and ref($second)) {
@@ -770,12 +793,13 @@ sub atan2 {
     }
 }
 
-## @method Geo::Raster cos()
+#** @method Geo::Raster cos()
 #
 # @brief Calculates the cosine at each cell.
 #
 # @return a new raster. In void context changes this raster.
 # @note The resulting raster will always have as datatype real.
+#*
 sub cos {
     my $self = shift;
     if (defined wantarray) {
@@ -787,11 +811,12 @@ sub cos {
     return $self;
 }
 
-## @method Geo::Raster sin()
+#** @method Geo::Raster sin()
 #
 # @brief Calculates the sine at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub sin {
     my $self = shift;
     if (defined wantarray) {
@@ -803,11 +828,12 @@ sub sin {
     return $self;
 }
 
-## @method Geo::Raster exp()
+#** @method Geo::Raster exp()
 #
 # @brief Calculates the exponential function at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub exp {
     my $self = shift;
     if (defined wantarray) {
@@ -819,11 +845,12 @@ sub exp {
     return $self;
 }
 
-## @method Geo::Raster abs()
+#** @method Geo::Raster abs()
 #
 # @brief Calculates the absolute value at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub abs {
     my $self = shift;
     if (defined wantarray) {
@@ -835,11 +862,12 @@ sub abs {
     }
 }
 
-## @method Geo::Raster sqrt()
+#** @method Geo::Raster sqrt()
 #
 # @brief Calculates the square root at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub sqrt {
     my $self = shift;
     if (defined wantarray) {
@@ -851,11 +879,12 @@ sub sqrt {
     return $self;
 }
 
-## @method Geo::Raster round()
+#** @method Geo::Raster round()
 #
 # @brief Rounds the value at each cell.
 #
 # @return a new integer raster. In void context changes this raster.
+#*
 sub round {
     my $self = shift;
     if (ref($self)) {
@@ -875,11 +904,12 @@ sub round {
 {
     no warnings 'redefine';
 
-## @method Geo::Raster acos()
+#** @method Geo::Raster acos()
 #
 # @brief Calculates the arc-cosine at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub acos {
     my $self = shift;
     if (defined wantarray) {
@@ -891,11 +921,12 @@ sub acos {
     return $self;
 }
 
-## @method Geo::Raster atan()
+#** @method Geo::Raster atan()
 #
 # @brief Calculates the arc-tangent at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub atan {
     my $self = shift;
     if (defined wantarray) {
@@ -907,12 +938,13 @@ sub atan {
     return $self;
 }
 
-## @method Geo::Raster ceil()
+#** @method Geo::Raster ceil()
 #
 # @brief Calculates at each cell the smallest integer not less than
 # the value.
 #
 # @return a new integer raster. In void context changes this raster.
+#*
 sub ceil {
     my $self = shift;
     if (ref($self)) {
@@ -924,11 +956,12 @@ sub ceil {
     }
 }
 
-## @method Geo::Raster cosh()
+#** @method Geo::Raster cosh()
 #
 # @brief Calculates at each cell the hyperbolic cosine of the value.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub cosh {
     my $self = shift;
     if (defined wantarray) {
@@ -940,12 +973,13 @@ sub cosh {
     return $self;
 }
 
-## @method Geo::Raster floor()
+#** @method Geo::Raster floor()
 #
 # @brief Calculates at each cell the largest integer less than or
 # equal to the value.
 #
 # @return a new integer raster. In void context changes this raster.
+#*
 sub floor {
     my $self = shift;
     if (ref($self)) {
@@ -957,11 +991,12 @@ sub floor {
     }
 }
 
-## @method Geo::Raster log()
+#** @method Geo::Raster log()
 #
 # @brief Calculates the logarithm at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub log {
     my $self = shift;
     if (defined wantarray) {
@@ -973,11 +1008,12 @@ sub log {
     return $self;
 }
 
-## @method Geo::Raster log10()
+#** @method Geo::Raster log10()
 #
 # @brief Calculates the base-10 logarithm at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub log10 {
     my $self = shift;
     if (defined wantarray) {
@@ -995,16 +1031,18 @@ sub log10 {
 # @param base Desired logarithm base.
 # @param value Value for which the logarithm is calculated.
 # @return the result of the logarithm function.
+#*
 sub log_base {
     my ($base, $value) = @_;
     return CORE::log($value)/CORE::log($base);
 }
 
-## @method Geo::Raster sinh()
+#** @method Geo::Raster sinh()
 #
 # @brief Calculates the hyperbolic sine at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub sinh {
     my $self = shift;
     if (defined wantarray) {
@@ -1016,11 +1054,12 @@ sub sinh {
     return $self;
 }
 
-## @method Geo::Raster tan()
+#** @method Geo::Raster tan()
 #
 # @brief Calculates the tangent at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub tan {
     my $self = shift;
     if (defined wantarray) {
@@ -1032,11 +1071,12 @@ sub tan {
     return $self;
 }
 
-## @method Geo::Raster tanh()
+#** @method Geo::Raster tanh()
 #
 # @brief Calculates the hyperbolic tangent at each cell.
 #
 # @return a new raster. In void context changes this raster.
+#*
 sub tanh {
     my $self = shift;
     if (defined wantarray) {
@@ -1049,7 +1089,7 @@ sub tanh {
 }
 }
 
-## @method Geo::Raster lt($second, $reversed)
+#** @method Geo::Raster lt($second, $reversed)
 #
 # @brief Performs at each cell the "less than" comparison
 # on this raster and a number.
@@ -1070,8 +1110,9 @@ sub tanh {
 # @return a new integer raster, which is 0 where this raster is greater
 # than or equal to the second, and 1 where it is less than the
 # second. In void context changes this raster.
+#*
 
-## @method Geo::Raster lt(Geo::Raster second, $reversed)
+#** @method Geo::Raster lt(Geo::Raster second, $reversed)
 #
 # @brief Performs at each cell the "less than" comparison
 # on this and the second raster.
@@ -1092,6 +1133,7 @@ sub tanh {
 # @return a new integer raster, which is 0 where this raster is greater
 # than or equal to the second, and 1 where it is less than the
 # second. In void context changes this raster.
+#*
 sub lt {
     my($self, $second, $reversed) = @_;    
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1115,7 +1157,7 @@ sub lt {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster gt($second, $reversed)
+#** @method Geo::Raster gt($second, $reversed)
 #
 # @brief Performs at each cell the "greater than" comparison
 # on this raster and a number.
@@ -1136,8 +1178,9 @@ sub lt {
 # @return a new integer raster, which is 0 where this raster is less
 # than or equal to the second, and 1 where it is greater than the
 # second. In void context changes this raster.
+#*
 
-## @method Geo::Raster gt(Geo::Raster second, $reversed)
+#** @method Geo::Raster gt(Geo::Raster second, $reversed)
 #
 # @brief Performs at each cell the "greater than" comparison
 # on this and the second raster.
@@ -1158,6 +1201,7 @@ sub lt {
 # @return a new integer raster, which is 0 where this raster is less
 # than or equal to the second, and 1 where it is greater than the
 # second. In void context changes this raster.
+#*
 sub gt {
     my($self, $second, $reversed) = @_;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1181,7 +1225,7 @@ sub gt {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster le($second, $reversed)
+#** @method Geo::Raster le($second, $reversed)
 #
 # @brief Performs at each cell the "less than or equal to" comparison
 # on this raster and a number.
@@ -1202,8 +1246,9 @@ sub gt {
 # @return a new integer raster, which is 0 where this raster is greater
 # than the second, and 1 where it is less than or equal to the second. In void
 # context changes this raster.
+#*
 
-## @method Geo::Raster le(Geo::Raster second, $reversed)
+#** @method Geo::Raster le(Geo::Raster second, $reversed)
 #
 # @brief Performs at each cell the "greater than or equal to" comparison
 # on this and the second raster.
@@ -1224,6 +1269,7 @@ sub gt {
 # @return a new integer raster, which is 0 where this raster is greater
 # than the second, and 1 where it is less than or equal to the second. In void
 # context changes this raster.
+#*
 sub le {
     my($self, $second, $reversed) = @_;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1247,7 +1293,7 @@ sub le {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster ge($second, $reversed)
+#** @method Geo::Raster ge($second, $reversed)
 #
 # @brief Performs at each cell the "greater than or equal to" comparison
 # on this raster and a number.
@@ -1268,8 +1314,9 @@ sub le {
 # @return a new integer raster, which is 0 where this raster is less
 # than the second, and 1 where it is greater than the second. In void
 # context changes this raster.
+#*
 
-## @method Geo::Raster ge(Geo::Raster second, $reversed)
+#** @method Geo::Raster ge(Geo::Raster second, $reversed)
 #
 # @brief Performs at each cell the "greater than or equal to" comparison
 # on this and the second raster.
@@ -1290,6 +1337,7 @@ sub le {
 # @return a new integer raster, which is 0 where this raster is less
 # than the second, and 1 where it is greater than the second. In void
 # context changes this raster.
+#*
 sub ge {
     my($self, $second, $reversed) = @_;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1313,7 +1361,7 @@ sub ge {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster eq($second)
+#** @method Geo::Raster eq($second)
 #
 # @brief Performs at each cell the "equal to" comparison on this raster
 # and a number.
@@ -1331,8 +1379,9 @@ sub ge {
 # @return a new integer raster, which is 0 where this raster is not equal
 # to the second, and 1 where they are equal. In void context
 # changes this raster.
+#*
 
-## @method Geo::Raster eq(Geo::Raster second)
+#** @method Geo::Raster eq(Geo::Raster second)
 #
 # @brief Performs at each cell the "equal to" comparison on this and the second
 # raster.
@@ -1350,6 +1399,7 @@ sub ge {
 # @return a new integer raster, which is 0 where this raster is not equal
 # ot the second, and 1 where they are equal. In void context
 # changes this raster.
+#*
 sub eq {
     my $self = shift;
     my $second = shift;
@@ -1366,7 +1416,7 @@ sub eq {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster ne($second)
+#** @method Geo::Raster ne($second)
 #
 # @brief Performs at each cell the "not equal to" comparison on this raster
 # and a number.
@@ -1384,8 +1434,9 @@ sub eq {
 # @return a new integer raster, which is 0 where this raster is equal
 # to the second, and 1 where they are not equal. In void context
 # changes this raster.
+#*
 
-## @method Geo::Raster ne(Geo::Raster second)
+#** @method Geo::Raster ne(Geo::Raster second)
 #
 # @brief Performs at each cell the "not equal to" comparison on this and the second
 # raster.
@@ -1403,6 +1454,7 @@ sub eq {
 # @return a new integer raster, which is 0 where this raster is equal
 # to the second, and 1 where they are not equal. In void context
 # changes this raster.
+#*
 sub ne {
     my $self = shift;
     my $second = shift;
@@ -1419,7 +1471,7 @@ sub ne {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster cmp($second, $reversed)
+#** @method Geo::Raster cmp($second, $reversed)
 #
 # @brief Performs at each cell the numeric comparison on this raster
 # and a number.
@@ -1440,8 +1492,9 @@ sub ne {
 # @return a new integer raster, which is -1 where this raster is
 # smaller than the second, 0 where they are equal, and 1 where the
 # second is larger. In void context changes this raster.
+#*
 
-## @method Geo::Raster cmp(Geo::Raster second, $reversed)
+#** @method Geo::Raster cmp(Geo::Raster second, $reversed)
 #
 # @brief Performs at each cell the numeric comparison on this and the second
 # raster.
@@ -1462,6 +1515,7 @@ sub ne {
 # @return a new integer raster, which is -1 where this raster is
 # smaller than the second, 0 where they are equal, and 1 where the
 # second is larger. In void context changes this raster.
+#*
 sub cmp {
     my($self, $second, $reversed) = @_;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1484,12 +1538,13 @@ sub cmp {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster not()
+#** @method Geo::Raster not()
 #
 # @brief Evaluate at each cell the logical not.
 #
 # @return a new raster. In void context changes this raster.
 # @note Defined only for integer rasters.
+#*
 sub not {
     my $self = shift;
     $self = Geo::Raster->new($self) if defined wantarray;
@@ -1497,7 +1552,7 @@ sub not {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster and(Geo::Raster second)
+#** @method Geo::Raster and(Geo::Raster second)
 #
 # @brief Evaluate at each cell the logical and on this and the second
 # raster.
@@ -1515,6 +1570,7 @@ sub not {
 # @param[in] second A raster.
 # @return a new raster. In void context changes this raster.
 # @note Defined only for integer rasters.
+#*
 sub and {
     my $self = shift;
     my $second = shift;
@@ -1523,7 +1579,7 @@ sub and {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster or(Geo::Raster second)
+#** @method Geo::Raster or(Geo::Raster second)
 #
 # @brief Evaluate at each cell the logical or on this and the second
 # raster.
@@ -1541,6 +1597,7 @@ sub and {
 # @param[in] second A raster.
 # @return a new raster. In void context changes this raster.
 # @note Defined only for integer rasters.
+#*
 sub or {
     my $self = shift;
     my $second = shift;
@@ -1549,7 +1606,7 @@ sub or {
     return $self if defined wantarray;
 }
 
-## @method Geo::Raster nor($second)
+#** @method Geo::Raster nor($second)
 #
 # @brief Evaluates at each cell the logical nor on this and the second
 # raster.
@@ -1568,6 +1625,7 @@ sub or {
 # the logical inverse of disjunction.
 # @return a new raster. In void context changes this raster.
 # @note Defined only for integer rasters.
+#*
 sub nor {
     my $self = shift;
     my $second = shift;

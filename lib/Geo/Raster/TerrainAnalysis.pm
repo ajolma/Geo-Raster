@@ -1,10 +1,10 @@
-## @class Geo::Raster::TerrainAnalysis
+#** @file TerrainAnalysis.pm
 # @brief Adds terrain analysis methods into Geo::Raster
-#
-# In this module there are methods mainly for digital elevation model
+# In this file there are methods mainly for digital elevation model
 # (DEM) rasters, for flow direction (FDG) rasters, for streams
 # rasters.
-#
+#*
+
 package Geo::Raster;
 
 use strict;
@@ -12,7 +12,7 @@ use Scalar::Util 'blessed';
 use File::Basename; # for fileparse
 use Geo::OGC::Geometry;
 
-## @method @fit_surface($z_factor)
+#** @method @fit_surface($z_factor)
 #
 # @brief Fit a 9-term quadratic polynomial to the 3*3 neighborhood of
 # each cell in a DEM.
@@ -25,6 +25,7 @@ use Geo::OGC::Geometry;
 # @param[in] z_factor is the unit of z divided by the unit of x and y, the
 # default value of z_factor is 1.
 # @return 9 rasters in a list, one for each parameter.
+#*
 sub fit_surface {
     my($dem, $z_factor) = @_;
     $z_factor = 1 unless $z_factor;
@@ -39,7 +40,7 @@ sub fit_surface {
     return @ret;
 }
 
-## @method Geo::Raster aspect()
+#** @method Geo::Raster aspect()
 #
 # @brief Estimate aspects from a DEM.
 #
@@ -48,6 +49,7 @@ sub fit_surface {
 # radians increasing clockwise starting from zero in north. For flat
 # cells the aspect is undefined, denoted with the value -1.
 # @return an aspect raster. In void context converts the DEM.
+#*
 sub aspect {
     my $self = shift;
     if (defined wantarray) {
@@ -57,7 +59,7 @@ sub aspect {
     }
 }
 
-## @method Geo::Raster slope(scalar z_factor)
+#** @method Geo::Raster slope(scalar z_factor)
 #
 # @brief Estimate the slope from a DEM.
 #
@@ -67,6 +69,7 @@ sub aspect {
 # @param[in] z_factor The unit of z divided by the unit of x and
 # y. Default is 1.
 # @return a slope raster. In void context converts the DEM.
+#*
 sub slope {
     my $self = shift;
     my $z_factor = shift;
@@ -78,7 +81,7 @@ sub slope {
     }
 }
 
-## @method Geo::Raster fdg(%params) 
+#** @method Geo::Raster fdg(%params) 
 #
 # @brief Compute a flow direction raster (FDG) from a DEM.
 #
@@ -105,6 +108,7 @@ sub slope {
 # @exception - Unsupported method
 # @exception - No progress in the iteration
 # @return a FDG. In void context converts the DEM.
+#*
 sub fdg {
     my($dem, %opt) = @_;
     $opt{method} = 'D8' unless $opt{method};
@@ -149,8 +153,6 @@ sub fdg {
     }
 }
 
-## @ignore
-# maps from ESRI style FDG to libral style FDG
 sub many2ds {
     my($fdg) = @_;
     my %map;
@@ -164,7 +166,7 @@ sub many2ds {
     $fdg->map(\%map);
 }
 
-## @method @movecell(@cell, $dir)
+#** @method @movecell(@cell, $dir)
 #
 # @brief Return the cell in the given direction.
 # @param[in] cell The current cell
@@ -173,6 +175,7 @@ sub many2ds {
 # FDG.
 # @return the cell in the given direction or undef if the cell is not
 # within the raster.
+#*
 sub movecell {
     my($fdg, $i, $j, $dir) = @_;
     $dir = $fdg->get($i, $j) unless $dir;
@@ -201,6 +204,7 @@ sub movecell {
 # @param[in] dir Direction
 # @param[in] add Steps to increase dir. 
 # @return the new direction.
+#*
 sub dirsum {
     my($dir, $add) = @_;
     $dir += $add;
@@ -208,7 +212,7 @@ sub dirsum {
     return $dir;
 }
 
-## @method Geo::Raster drain_flat_areas(Geo::Raster dem, hash params)
+#** @method Geo::Raster drain_flat_areas(Geo::Raster dem, hash params)
 #
 # @brief Resolve the flow direction for flat areas in a FDG.
 #
@@ -239,6 +243,7 @@ sub dirsum {
 # @exception - Unsupported method
 # @return In void context the method changes this flow direction raster,
 # otherwise the method returns a new FDG.
+#*
 sub drain_flat_areas {
     my($fdg, $dem, %opt) = @_;
     croak "drain_flat_areas: no DEM supplied" unless $dem and ref($dem);
@@ -256,7 +261,7 @@ sub drain_flat_areas {
     return $fdg if defined wantarray;
 }
 
-## @method Geo::Raster drain_depressions(Geo::Raster dem)
+#** @method Geo::Raster drain_depressions(Geo::Raster dem)
 #
 # @brief Scan FDG once and drain the depressions that are found.
 #
@@ -266,6 +271,7 @@ sub drain_flat_areas {
 # @param[in] dem The DEM. The DEM is not changed in the method.
 # @return In a void context the method changes this FDG, otherwise the
 # method returns a new FDG.
+#*
 sub drain_depressions {
     my($fdg, $dem) = @_;
     $fdg = Geo::Raster->new($fdg) if defined wantarray;
@@ -273,19 +279,20 @@ sub drain_depressions {
     return $fdg if defined wantarray;
 }
 
-## @method @outlet(@cell)
+#** @method @outlet(@cell)
 #
 # @brief Return the outlet of a catchment in a FDG.
 #
 # @param[in] cell A cell on the catchment.
 # @return the outlet cell of the catchment.
+#*
 sub outlet {
     my($fdg, $streams, @cell) = @_;
     my $cell = ral_fdg_outlet($fdg->{GRID}, $streams->{GRID}, @cell);
     return @{$cell};
 }
 
-## @method Geo::Raster ucg()
+#** @method Geo::Raster ucg()
 #
 # @brief Compute an upslope cell raster (UCG) from a FDG.
 #
@@ -293,6 +300,7 @@ sub outlet {
 # byte. The directions are from 1 (up) to 8 (up left).
 #
 # @return a UCG. In void context converts the FDG.
+#*
 sub ucg {
     my($dem) = @_;
     my $ucg = ral_dem_ucg($dem->{GRID});
@@ -303,7 +311,7 @@ sub ucg {
     }
 }
 
-## @method @upstream(Geo::Raster streams, array cell)
+#** @method @upstream(Geo::Raster streams, array cell)
 #
 # @brief Return the direction(s) to the upslope cells of a cell in a FDG.
 #
@@ -317,6 +325,7 @@ sub ucg {
 # @return The directions to the upstream cells. If streams raster is
 # given, only directions to stream cells are returned. The directions
 # are coded as usual: 1 is up, 2 is up right, etc.
+#*
 sub upstream { 
     my $fdg = shift;
     my $streams;
@@ -340,7 +349,7 @@ sub upstream {
     return @up;
 }
 
-## @method Geo::Raster raise_pits(%params)
+#** @method Geo::Raster raise_pits(%params)
 #
 # @brief Raise each pit cell to the level of its lowest neighbor in a
 # DEM.
@@ -353,6 +362,7 @@ sub upstream {
 # the number of cells raised.
 # @return In void context the method changes this DEM, otherwise the
 # method returns a new DEM.
+#*
 sub raise_pits {
     my($dem, %opt) = @_;
     $opt{z_limit} = 0 unless defined($opt{z_limit});
@@ -362,7 +372,7 @@ sub raise_pits {
     return $dem if defined wantarray;
 }
 
-## @method lower_peaks(%params)
+#** @method lower_peaks(%params)
 # 
 # @brief Lower each peak cell to the level of its highest neighbor in
 # a DEM.
@@ -375,6 +385,7 @@ sub raise_pits {
 # the number of cells raised.
 # @return In void context the method changes this DEM, otherwise
 # the method returns a new DEM.
+#*
 sub lower_peaks {
     my($dem, %opt) = @_;
     $opt{z_limit} = 0 unless defined($opt{z_limit});
@@ -384,20 +395,21 @@ sub lower_peaks {
     return $dem if defined wantarray;
 }
 
-## @method Geo::Raster depressions($inc_m)
+#** @method Geo::Raster depressions($inc_m)
 #
 # @brief Return depressions defined by a FDG.
 #
 # @param[in] inc_m (optional) A boolean value indicating whether each
 # depression is marked with a unique integer. Default is false.
 # @return Depressions raster.
+#*
 sub depressions {
     my($fdg, $inc_m) = @_;
     $inc_m = 0 unless defined($inc_m) and $inc_m;
     return Geo::Raster->new(ral_fdg_depressions($fdg->{GRID}, $inc_m));
 }
 
-## @method scalar fill_depressions(%params)
+#** @method scalar fill_depressions(%params)
 # 
 # @brief Fill the depressions in a DEM.
 #
@@ -426,6 +438,7 @@ sub depressions {
 # @return a DEM from which some depressions are removed (if the
 # context is non-void and iterative is false), the number of filled
 # depressions (if FDG is given), or a pitless and flatless FDG.
+#*
 sub fill_depressions {
     my($dem, %opt) = @_;
     $opt{iterative} = 1 unless exists $opt{iterative} and CORE::not $opt{iterative};
@@ -466,7 +479,7 @@ sub fill_depressions {
     }
 }
 
-## @method scalar breach(%params)
+#** @method scalar breach(%params)
 #
 # @brief Breach the depressions in a DEM.
 #
@@ -508,6 +521,7 @@ sub fill_depressions {
 # @see Martz, L.W. and Garbrecht, J. 1998. The treatment of flat areas
 # and depressions in automated drainage analysis of raster digital
 # elevation models. Hydrol. Process. 12, 843-855
+#*
 sub breach {
     my($dem, %opt) = @_;
     $opt{fdg} = $opt{FDG} if exists $opt{FDG};
@@ -546,7 +560,7 @@ sub breach {
     }
 }
 
-## @method Geo::Raster path(@cell, Geo::Raster stop)
+#** @method Geo::Raster path(@cell, Geo::Raster stop)
 # 
 # @brief Return the flow path from the given FDG cell onwards.
 #
@@ -557,6 +571,7 @@ sub breach {
 # @param[in] stop (optional) Raster denoting end cells for paths.
 # @return raster, where the path cells have the value 1 and otherwise
 # no data value. In void context changes the FDG.
+#*
 sub path {
     my($fdg, $i, $j, $stop) = @_;
     my $g = ral_fdg_path($fdg->{GRID}, $i, $j, $stop ? $stop->{GRID} : undef);
@@ -567,7 +582,7 @@ sub path {
     }
 }
 
-## @method Geo::Raster path_length(Geo::Raster stop, Geo::Raster op)
+#** @method Geo::Raster path_length(Geo::Raster stop, Geo::Raster op)
 #
 # @brief Compute a path length raster from a FDG.
 #
@@ -580,6 +595,7 @@ sub path {
 # @param[in] op (optional) Raster denoting cells which are included in
 # the length computation.
 # @return a flow path length raster. In void context changes the FDG.
+#*
 sub path_length {
     my($fdg, $stop, $op) = @_;
     my $g = ral_fdg_path_length($fdg->{GRID}, $stop ? $stop->{GRID} : undef, $op ? $op->{GRID} : undef);
@@ -590,7 +606,7 @@ sub path_length {
     }
 }
 
-## @method Geo::Raster path_sum(Geo::Raster stop, Geo::Raster op)
+#** @method Geo::Raster path_sum(Geo::Raster stop, Geo::Raster op)
 # 
 # @brief Compute a cost-to-go raster from a FDG.
 #
@@ -602,6 +618,7 @@ sub path_length {
 # @param[in] stop (optional) Raster denoting end cells for paths.
 # @param[in] op Weights (cost) for the summing.
 # @return a cost-to-go raster. In void context changes the FDG.
+#*
 sub path_sum {
     my($fdg, $stop, $op) = @_;
     my $g = ral_fdg_path_sum($fdg->{GRID}, $stop ? $stop->{GRID} : undef, $op->{GRID});
@@ -612,7 +629,7 @@ sub path_sum {
     }
 }
 
-## @method Geo::Raster upslope_count(Geo::Raster mask, $include_self)
+#** @method Geo::Raster upslope_count(Geo::Raster mask, $include_self)
 # 
 # @brief Compute the count of the upslope cells in a FDG.
 #
@@ -625,6 +642,7 @@ sub path_sum {
 # @note DO NOT call if the FDG contains loops.
 # @note This is the method for computing an upslope area raster (UAG)
 # from a flow direction raster (FDG).
+#*
 sub upslope_count {
     my($fdg, $a, $b) = @_;
     my $op = ref $a ? $a : $b;
@@ -640,7 +658,7 @@ sub upslope_count {
     }
 }
 
-## @method Geo::Raster upslope_sum(Geo::Raster a, $include_self)
+#** @method Geo::Raster upslope_sum(Geo::Raster a, $include_self)
 # 
 # @brief Compute the sum of the values of the upslope cells in a
 # raster (FDG method).
@@ -651,6 +669,7 @@ sub upslope_count {
 # @return In void context changes this flow direction raster,
 # otherwise returns a new FDG.
 # @note DO NOT call if the FDG contains loops.
+#*
 sub upslope_sum {
     my($fdg, $a, $b) = @_;
     croak "usage: \$fdg->upslope_sum(\$op); where \$op is a raster whose values are to be summed" unless $a and $a->{GRID}; 
@@ -663,7 +682,7 @@ sub upslope_sum {
     }
 }
 
-## @method Geo::Raster kill_extra_outlets(Geo::Raster lakes, Geo::Raster uag)
+#** @method Geo::Raster kill_extra_outlets(Geo::Raster lakes, Geo::Raster uag)
 # 
 # @brief Checks and possibly correct the sanity of the flow paths in a
 # terrain with lakes (FDG method).
@@ -676,6 +695,7 @@ sub upslope_sum {
 # upslope_count method unless given.
 # @return In void context changes this flow direction raster,
 # otherwise returns a new FDG.
+#*
 sub kill_extra_outlets {
     my ($fdg, $lakes, $uag) = @_;
     $fdg = new Geo::Raster $fdg if defined wantarray;
@@ -684,7 +704,7 @@ sub kill_extra_outlets {
     return $fdg if defined wantarray;
 }
 
-## @method Geo::Raster catchment(Geo::Raster catchment, @cell, $m)
+#** @method Geo::Raster catchment(Geo::Raster catchment, @cell, $m)
 #
 # @brief Return the catchment area of the given cell (FDG method).
 #
@@ -696,6 +716,7 @@ sub kill_extra_outlets {
 # @return Depending on the context returns the catchment raster or a
 # list containing the catchment raster and the number of cells in the
 # catchment.
+#*
 sub catchment {
     my $fdg = shift;
     my $i = shift;
@@ -716,7 +737,7 @@ sub catchment {
     return wantarray ? ($catchment, $size) : $catchment;
 }
 
-## @method Geo::Raster prune(Geo::Raster fdg, Geo::Raster lakes, $min_length, @cell)
+#** @method Geo::Raster prune(Geo::Raster fdg, Geo::Raster lakes, $min_length, @cell)
 # 
 # @brief Delete streams that are shorter than min_length in a streams raster.
 #
@@ -733,6 +754,7 @@ sub catchment {
 # then all streams are pruned.
 # @return In void context changes this streams raster, otherwise
 # returns a new streams raster.
+#*
 sub prune {
     my $streams = shift;
     my $fdg = shift;
@@ -755,7 +777,7 @@ sub prune {
     return $streams if defined wantarray;
 }
 
-## @method Geo::Raster number_streams(Geo::Raster fdg, Geo::Raster lakes, @cell, $id)
+#** @method Geo::Raster number_streams(Geo::Raster fdg, Geo::Raster lakes, @cell, $id)
 #
 # @brief Number streams in a streams raster with unique id.
 #
@@ -768,6 +790,7 @@ sub prune {
 # streams will get higher unique numbers. Default is 1.
 # @return In void context changes this streams raster, otherwise
 # returns a new streams raster.
+#*
 sub number_streams {
     my $streams = shift;
     my $fdg = shift;
@@ -790,7 +813,7 @@ sub number_streams {
     return $streams if defined wantarray;
 }
 
-## @method Geo::Raster subcatchments(Geo::Raster fdg, Geo::Raster lakes, @cell, $head)
+#** @method Geo::Raster subcatchments(Geo::Raster fdg, Geo::Raster lakes, @cell, $head)
 #
 # @brief Divide catchments into subcatchments defined by a streams
 # raster.
@@ -814,6 +837,7 @@ sub number_streams {
 # @return Returns a subcatchments raster or a subcatchments raster and
 # topology, topology is a reference to a hash of
 # $upstream_element=>$downstream_element associations.
+#*
 sub subcatchments {
     my $streams = shift;
     my $fdg = shift;
@@ -884,7 +908,7 @@ sub subcatchments {
     return wantarray ? ($subs, \%ds) : $subs;
 }
 
-## @method vectorize_catchment(hashref topology, Geo::Raster streams, Geo::Raster lakes, %params)
+#** @method vectorize_catchment(hashref topology, Geo::Raster streams, Geo::Raster lakes, %params)
 #
 # @brief Save the subcatchment structure as a vector layer (a subcatchments raster method).
 #
@@ -895,6 +919,7 @@ sub subcatchments {
 # @param[in] lakes (required if topology contains lakes) Lakes raster.
 # @param[in] params Parameters (driver, data_source) for the new Geo::Vectors.
 # @return Two Geo::Vector objects in an array: ($subcatchments, $streams).
+#*
 sub vectorize_catchment {
     my $self = shift;
     my $topology = shift;
@@ -1045,7 +1070,7 @@ sub segment {
     return $segment;
 }
 
-## @method route(Geo::Raster dem, Geo::Raster fdg, Geo::Raster k, $r)
+#** @method route(Geo::Raster dem, Geo::Raster fdg, Geo::Raster k, $r)
 #
 # @brief Route water downstream (a water state raster method).
 #
@@ -1058,6 +1083,7 @@ sub segment {
 # the DEM. Default is 1.
 # @todo IN DEVELOPMENT DO NOT USE
 # @return The change in water state.
+#*
 sub route {
     my $water = shift;
     my $dem = shift;
@@ -1073,20 +1099,19 @@ sub route {
     }
 }
 
-## @method void vectorize_streams(Geo::Raster fdg, @cell)
+#** @method void vectorize_streams(Geo::Raster fdg, @cell)
 #
 # @brief Create an OGR layer from a streams raster.
 #
 # @param fdg The FDG from which the streams raster has been computed.
 # @param cell The outlet cell of the catchment.
 # @todo IN DEVELOPMENT DO NOT USE
+#*
 sub vectorize_streams {
     my ($self, $fdg, $i, $j, $datasource, $layer) = @_;
     ral_streams_vectorize($self->{GRID}, $fdg->{GRID}, $i, $j);
 }
 
-## @ignore
-#
 sub compare_dem_derived_ws_attribs {
     my ($self, $uag, $dem, $filename, $iname, $ielev, $idarea) = @_;
     #my ($self, $filename) = @_;
